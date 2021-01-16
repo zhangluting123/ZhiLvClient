@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:navigationIcon="@mipmap/logo_back"
+            app:title="实用信息"
+            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+        <Button
+            android:id="@+id/scene_btn_submit"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#00000000"
+            android:textSize="16sp"
+            android:text="完成"/>
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
+            <EditText
+                android:id="@+id/scene_et_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/black"
+                android:paddingTop="10dp"
+                android:textSize="18sp"
+                android:text="抱犊寨"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:text="简介"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+            <EditText
+                android:id="@+id/scene_et_content"
+                android:layout_marginBottom="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="隆兴寺，别名大佛寺，位于河北省石家庄市正定县城东门里街，原是东晋十六国时期后燕慕容熙的龙腾苑，公元586年（隋文帝开皇六年）在苑内改建寺院，时称龙藏寺，唐朝改为龙兴寺，清朝改为隆兴寺；是中国国内保存时代较早、规模较大而又保存完整的佛教寺院之一。"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:text="游玩须知"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+            <EditText
+                android:id="@+id/scene_et_rule"
+                android:layout_marginBottom="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:text="开放时间"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+            <EditText
+                android:id="@+id/scene_et_openTime"
+                android:layout_marginBottom="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:text="交通攻略"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+            <EditText
+                android:id="@+id/scene_et_traffic"
+                android:layout_marginBottom="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:text="门票攻略"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+            <EditText
+                android:id="@+id/scene_et_ticket"
+                android:layout_marginBottom="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="其他信息"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:text="用时参考"
+                android:textColor="@color/black" />
+            <EditText
+                android:id="@+id/scene_et_costTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="3小时以上" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:text="电话"
+                android:textColor="@color/black" />
+            <EditText
+                android:id="@+id/scene_et_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="0311-88781243"
+                android:textColor="@color/blue" />
+
+
+            <LinearLayout
+                android:paddingTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="网址"
+                    android:textColor="@color/black" />
+                <ImageView
+                    android:layout_marginTop="2dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@mipmap/logo_website" />
+            </LinearLayout>
+            <EditText
+                android:id="@+id/scene_et_website"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

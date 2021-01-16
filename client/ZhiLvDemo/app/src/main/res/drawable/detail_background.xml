@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle" >
+            <!-- 内容填充颜色-->
+            <solid android:color="@color/brown_light"/>
+            <!-- 设置边框宽度，颜色值-->
+            <padding android:left="10dp"
+                android:right="10dp"/>
+        </shape>
+    </item>
+</layer-list>

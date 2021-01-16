@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+    <LinearLayout
+        android:id="@+id/dialog_ll_choose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+        <TextView
+            android:id="@+id/people_self"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="个人"
+            android:text="个人"/>
+        <TextView
+            android:id="@+id/people_family"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="亲子"
+            android:text="亲子"/>
+        <TextView
+            android:id="@+id/people_friend"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="朋友"
+            android:text="朋友"/>
+        <TextView
+            android:id="@+id/people_group"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="拼团"
+            android:text="拼团"/>
+    </LinearLayout>
+</RelativeLayout>

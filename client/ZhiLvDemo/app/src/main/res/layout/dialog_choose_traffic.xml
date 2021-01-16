@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+    <LinearLayout
+        android:id="@+id/dialog_ll_choose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+        <TextView
+            android:id="@+id/traffic_selfDriving"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="自驾游"
+            android:text="自驾游"/>
+        <TextView
+            android:id="@+id/traffic_groupTour"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="跟团游"
+            android:text="跟团游"/>
+        <TextView
+            android:id="@+id/traffic_selfGuide"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:tag="自由行"
+            android:text="自由行"/>
+
+    </LinearLayout>
+</RelativeLayout>
