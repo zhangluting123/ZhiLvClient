@@ -25,7 +25,7 @@ public class SceneDetailActivity extends AppCompatActivity {
     private LinearLayout website;
     private TextView updateSceneByUser;
     private TextView updateSceneTime;
-    Time
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
