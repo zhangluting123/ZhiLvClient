@@ -3,12 +3,15 @@ package cn.edu.hebtu.software.zhilvdemo.Activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
+import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
 import cn.edu.hebtu.software.zhilvdemo.Util.JudgeStrUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.RandomNumber;
 import cn.edu.hebtu.software.zhilvdemo.Util.SendEmail;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +26,14 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
 
 public class RegistActivity extends AppCompatActivity {
     private EditText inputPhoneOrEmail;
@@ -36,12 +47,22 @@ public class RegistActivity extends AppCompatActivity {
     private boolean isPhone;
     private boolean isEmail;
     private long verificationCode;//邮箱验证码
-    private Handler mHandler = new Handler(){
+
+    private MyApplication data;
+
+    @SuppressLint("HandlerLeak")
+    private final Handler mHandler = new Handler(){
         @Override
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what){
                 case 1001:
                     Toast.makeText(RegistActivity.this, (CharSequence) msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+                case 1002:
+                    Toast.makeText(RegistActivity.this, "注册成功", Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(RegistActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
                     break;
             }
         }
@@ -51,6 +72,8 @@ public class RegistActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_regist);
+        data = (MyApplication)getApplication();
+
         getViews();
         registListener();
 
@@ -64,9 +87,7 @@ public class RegistActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                // TODO 插入用户信息
-//                                sendToServer();
-                                Toast.makeText(RegistActivity.this, "验证码提交成功", Toast.LENGTH_SHORT).show();
+                                sendToServer();
                                 inputCode.requestFocus();
                             }
                         });
@@ -155,8 +176,7 @@ public class RegistActivity extends AppCompatActivity {
 
     private void submitEmail() {
         if(Integer.parseInt(inputCode.getText().toString()) == verificationCode){ //验证码和输入一致
-            // TODO 插入用户信息
-            Toast.makeText(this,"验证成功",Toast.LENGTH_SHORT).show();
+            sendToServer();
         }else{
             Toast.makeText(this, "验证失败", Toast.LENGTH_SHORT).show();
         }
@@ -191,6 +211,44 @@ public class RegistActivity extends AppCompatActivity {
     //后台验证
     public void submitPhone() {
         SMSSDK.submitVerificationCode("86",inputPhoneOrEmail.getText().toString(),inputCode.getText().toString());
+    }
+
+    private void sendToServer() {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Message message = Message.obtain();
+                    String str = null;
+                    if(isPhone && !isEmail){
+                        str = "http://" + data.getIp() + ":8080/ZhiLvProject/user/regist?phone=" + inputPhoneOrEmail.getText().toString() + "&password=" + secondPwd.getText().toString();
+                    }else if(!isPhone && isEmail){
+                        str = "http://" + data.getIp() + ":8080/ZhiLvProject/user/regist?email=" + inputPhoneOrEmail.getText().toString() + "&password=" + secondPwd.getText().toString();
+                    }
+                    if(DetermineConnServer.isConnByHttp(getApplicationContext())) {
+                        URL url = new URL(str);
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in, "utf-8"));
+                        String info = reader.readLine();
+                        if ("ERROR".equals(info)) {
+                            message.what = 1001;
+                            message.obj = "该手机号/邮箱已被注册";
+                        }else{
+                            message.what = 1002;
+                        }
+                    }else{
+                        message.what = 1001;
+                        message.obj = "未连接到服务器";
+                    }
+                    mHandler.sendMessage(message);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     @Override

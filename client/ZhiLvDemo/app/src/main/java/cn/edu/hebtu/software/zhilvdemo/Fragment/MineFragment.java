@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,18 +13,34 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.security.auth.login.LoginException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import cn.edu.hebtu.software.zhilvdemo.Activity.LoginActivity;
+import cn.edu.hebtu.software.zhilvdemo.Activity.MainActivity;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.ChannelPagerAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.User;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.MyAttentionListActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.MyFansListActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.SettingActivity;
@@ -30,6 +48,8 @@ import cn.edu.hebtu.software.zhilvdemo.Fragment.Mine.CollectionMineFragment;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.Mine.GoodMineFragment;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.Mine.TravelsMineFragment;
 import cn.edu.hebtu.software.zhilvdemo.R;
+import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
 
 /**
  * @ProjectName:    ZhiLv
@@ -58,11 +78,16 @@ public class MineFragment extends Fragment {
     private LinearLayout fans;
     private MyCustomListener customListener;
 
+    private MyApplication data;
+    private List<User> attenList;
+    private List<User> fansList ;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(null == view){
             view = inflater.inflate(R.layout.fragment_mine, container, false);
+            data = (MyApplication)getActivity().getApplication();
             initTabsPager();
             getViews();
             registListener();
@@ -152,22 +177,33 @@ public class MineFragment extends Fragment {
             Intent intent = null;
             switch (view.getId()){
                 case R.id.mine_logout:
+                    data.setUser(null);
+                    intent = new Intent(getActivity().getApplication(), MainActivity.class);
+                    startActivity(intent);
+                    getActivity().finish();
                     break;
                 case R.id.mine_setting:
-                    intent = new Intent(getActivity().getApplicationContext(), SettingActivity.class);
-                    startActivity(intent);
+                    if(null == data.getUser()){
+                        Toast.makeText(getActivity().getApplicationContext(), "登录解锁更多功能", Toast.LENGTH_SHORT).show();
+                    }else{
+                        intent = new Intent(getActivity().getApplicationContext(), SettingActivity.class);
+                        startActivity(intent);
+                    }
                     break;
                 case R.id.mine_user_head:
-                    //TODO 判断当前用户为空
-                    intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
-                    startActivity(intent);
+                    if(null == data.getUser()){
+                        intent = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
+                        startActivity(intent);
+                    }
                     break;
                 case R.id.mine_attention:
                     intent = new Intent(getActivity().getApplicationContext(), MyAttentionListActivity.class);
+                    intent.putParcelableArrayListExtra("attenList", (ArrayList<? extends Parcelable>) attenList);
                     startActivity(intent);
                     break;
                 case R.id.mine_fans:
                     intent = new Intent(getActivity().getApplicationContext(), MyFansListActivity.class);
+                    intent.putParcelableArrayListExtra("fansList", (ArrayList<? extends Parcelable>) fansList);
                     startActivity(intent);
                     break;
                 default:
@@ -176,4 +212,84 @@ public class MineFragment extends Fragment {
     }
 
 
+    class FindAttenionList extends Thread{
+            @Override
+            public void run() {
+                try {
+                    if(DetermineConnServer.isConnByHttp(getActivity())){
+                        URL url = new URL("http://"+data.getIp()+":8080/ZhiLvProject/user/followList?userId="+data.getUser().getUserId());
+                        attenList = new ArrayList<>();
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in, "utf-8"));
+                        String info = reader.readLine();
+                        if(null != info){
+                            Gson gson = new Gson();
+                            Type type = new TypeToken<List<User>>(){}.getType();
+                            attenList = gson.fromJson(info,type);
+                            Log.e("attenList", info);
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+    }
+
+    class FindFansList extends Thread{
+        @Override
+        public void run() {
+            try {
+                if(DetermineConnServer.isConnByHttp(getActivity())){
+                    URL url = new URL("http://"+data.getIp()+":8080/ZhiLvProject/user/fansList?userId="+data.getUser().getUserId());
+                    fansList = new ArrayList<>();
+                    URLConnection conn = url.openConnection();
+                    InputStream in = conn.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in, "utf-8"));
+                    String info = reader.readLine();
+                    if(null != info){
+                        Gson gson = new Gson();
+                        Type type = new TypeToken<List<User>>(){}.getType();
+                        fansList = gson.fromJson(info,type);
+                        Log.e("attenList", info);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        User user = data.getUser();
+        if(null != user){
+            Thread thread1 = new FindAttenionList();
+            Thread thread2 = new FindFansList();
+            thread1.start();
+            thread2.start();
+            try {
+                thread1.join();
+                thread2.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            RequestOptions option = new RequestOptions().circleCrop();
+            Glide.with(this).load("http://" + data.getIp() + ":8080/ZhiLvProject/"+ user.getUserHead()).apply(option).into(userHead);
+            userName.setText(user.getUserName());
+            userSign.setText(user.getSignature());
+            if("girl".equals(user.getSex())){
+                userSex.setImageResource(R.mipmap.home_girl);
+            }else{
+                userSex.setImageResource(R.mipmap.home_boy);
+            }
+            attentionNum.setText(attenList.size()+"");
+            fansNum.setText(fansList.size()+"");
+        }
+    }
 }

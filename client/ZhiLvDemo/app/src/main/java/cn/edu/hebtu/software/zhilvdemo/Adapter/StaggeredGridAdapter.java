@@ -73,7 +73,12 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemCount() {
-        return mDatas.size();
+        if(null != mDatas){
+            return mDatas.size();
+        }else{
+            return 0;
+        }
+
     }
 
     public class MyViewHolderTravels extends RecyclerView.ViewHolder {

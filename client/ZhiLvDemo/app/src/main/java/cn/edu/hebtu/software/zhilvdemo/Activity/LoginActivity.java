@@ -1,14 +1,22 @@
 package cn.edu.hebtu.software.zhilvdemo.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import cn.edu.hebtu.software.zhilvdemo.Data.User;
 import cn.edu.hebtu.software.zhilvdemo.R;
+import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
 import cn.edu.hebtu.software.zhilvdemo.Util.JudgeStrUtil;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.TransformationMethod;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -16,6 +24,16 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText inputPhoneOrEmail;
@@ -29,12 +47,30 @@ public class LoginActivity extends AppCompatActivity {
     private boolean isEmail;
     private boolean isHideFirst = true;//输入框密码是否是隐藏的，默认为true
 
+    private MyApplication data;
+    @SuppressLint("HandlerLeak")
+    private final Handler handler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what){
+                case 1001:
+                    Toast.makeText(LoginActivity.this, (CharSequence) msg.obj, Toast.LENGTH_LONG).show();
+                    break;
+                case 1002:
+                    data.setUser((User)msg.obj);
+                    finish();
+                    break;
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         getViews();
         registListener();
+        data = (MyApplication)getApplication();
     }
 
     private void getViews(){
@@ -78,14 +114,7 @@ public class LoginActivity extends AppCompatActivity {
                     isPhone = JudgeStrUtil.isPhone(inputPhoneOrEmail.getText().toString().trim());
                     isEmail = JudgeStrUtil.isEmail(inputPhoneOrEmail.getText().toString().trim());
                     String pwd = inputPassword.getText().toString().trim();
-                    if(isPhone && !isEmail){
-                        // 如果是手机号
-                    }else if(!isPhone && isEmail){
-                        //如果是邮箱
-                    }else{
-                        Toast.makeText(LoginActivity.this, "手机或邮箱账号有误",Toast.LENGTH_SHORT).show();
-                        inputPhoneOrEmail.requestFocus();
-                    }
+                    login(pwd);
                     break;
                 case R.id.tv_fgpwd:
                     intent = new Intent(LoginActivity.this, ForgetPwdActivity.class);
@@ -99,6 +128,48 @@ public class LoginActivity extends AppCompatActivity {
                     break;
             }
         }
+    }
+
+    private void login(String pwd) {
+        new Thread(){
+            public void run(){
+                try {
+                    Message msg = Message.obtain();
+                    String urlstr = null;
+                    if(isPhone && !isEmail){
+                        urlstr = "http://" + data.getIp() + ":8080/ZhiLvProject/user/login?phone=" + inputPhoneOrEmail.getText().toString() + "&password=" + pwd;
+                    }else if(!isPhone && isEmail){
+                        urlstr = "http://" + data.getIp() + ":8080/ZhiLvProject/user/login?email=" + inputPhoneOrEmail.getText().toString() + "&password=" + pwd;
+                    }
+                    if(DetermineConnServer.isConnByHttp(LoginActivity.this)){
+                        User threadUser = new User();
+                        URL url = new URL(urlstr);
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in, "utf-8"));
+                        String str = reader.readLine();
+                        if("NoUser".equals(str)){
+                            msg.what = 1001;
+                            msg.obj = "用户名或密码错误";
+                        }else {
+                            Gson gson = new Gson();
+                            Log.e("user=", str);
+                            threadUser = gson.fromJson(str, User.class);
+                            msg.what = 1002;
+                            msg.obj = threadUser;
+                        }
+                    }else {
+                        msg.what = 1001;
+                        msg.obj = "未连接到服务器";
+                    }
+                    handler.sendMessage(msg);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
 

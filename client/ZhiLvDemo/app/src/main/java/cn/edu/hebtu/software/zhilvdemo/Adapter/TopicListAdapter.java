@@ -47,7 +47,11 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.View
 
     @Override
     public int getItemCount() {
-        return mDatas.size();
+        if(null != mDatas) {
+            return mDatas.size();
+        }else{
+            return 0;
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{

@@ -5,12 +5,17 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import cn.edu.hebtu.software.zhilvdemo.Data.User;
 import cn.edu.hebtu.software.zhilvdemo.R;
+import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.UploadAndDownload.UploadUserMsg;
+import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.FileUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.FinalVariableUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.GetPhotoUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.PermissionUtil;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -31,6 +36,7 @@ import android.widget.LinearLayout;
 
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +61,7 @@ public class UserInfoActivity extends AppCompatActivity {
     private LinearLayout changeHead;
     private ImageView userHead;
     private EditText userName;
+    private RadioGroup radioGroup;
     private RadioButton girl;
     private RadioButton boy;
     private TextView userBirth;
@@ -64,22 +71,44 @@ public class UserInfoActivity extends AppCompatActivity {
     private Button btnCancel;
 
     private View v;
-
     private TimePickerView pvTime; //时间选择器对象
     private PopupWindow popupWindow;
-    //判断是否更换图片
-    private String isfilePathChange;
     private String mTempPhotoPath;
-
+    private MyApplication data;
+    private User currentUser;
+    private User user;
+    private String sex;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_info);
-
+        data = (MyApplication)getApplication();
         getViews();
         registListener();
+        currentUser = data.getUser();
+        user = new User();
+        user.setUserId(currentUser.getUserId());
+        user.setUserName(currentUser.getUserName());
+        user.setBirth(currentUser.getBirth());
+        user.setSex(currentUser.getSex());
+        user.setSignature(currentUser.getSignature());
+
+        userName.setText(user.getUserName());
+        userSign.setText(user.getSignature());
+        userBirth.setText(DateUtil.getDateStr(user.getBirth()));
+        if ("girl".equals(user.getSex())) {
+            girl.setSelected(true);
+            girl.setChecked(true);
+            sex = "girl";
+        } else if ("boy".equals(user.getSex())) {
+            boy.setSelected(true);
+            boy.setChecked(true);
+            sex = "boy";
+        }
+        RequestOptions options = new RequestOptions().circleCrop();
+        Glide.with(this).load("http://" + data.getIp() + ":8080/ZhiLvProject/" + currentUser.getUserHead()).apply(options).into(userHead);
 
     }
 
@@ -88,6 +117,8 @@ public class UserInfoActivity extends AppCompatActivity {
         submit = findViewById(R.id.info_btnSubmit);
         changeHead = findViewById(R.id.info_changeHeader);
         userHead = findViewById(R.id.info_iv_userHead);
+        userName = findViewById(R.id.info_edt_userName);
+        radioGroup = findViewById(R.id.radioGroup);
         girl = findViewById(R.id.info_rb_girl);
         boy = findViewById(R.id.info_rb_boy);
         userBirth = findViewById(R.id.info_userBirth);
@@ -114,6 +145,13 @@ public class UserInfoActivity extends AppCompatActivity {
                 finish();
             }
         });
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton radioButton = findViewById(radioGroup.getCheckedRadioButtonId());
+                sex = radioButton.getText().toString();
+            }
+        });
     }
 
     class CustomListener implements View.OnClickListener{
@@ -121,6 +159,15 @@ public class UserInfoActivity extends AppCompatActivity {
         public void onClick(View view) {
             switch (view.getId()){
                 case R.id.info_btnSubmit:
+                    user.setUserName(userName.getText().toString());
+                    user.setSignature(userSign.getText().toString());
+                    user.setBirth(DateUtil.getDate(userBirth.getText().toString()));
+                    user.setSex(sex);
+                    if (!currentUser.getUserHead().equals(mTempPhotoPath)) {
+                        user.setUserHead(mTempPhotoPath);
+                    }
+                    UploadUserMsg task = new UploadUserMsg(getApplicationContext(), user);
+                    task.execute("http://" + data.getIp() + ":8080/ZhiLvProject/user/changeMsg");
                     break;
                 case R.id.info_changeHeader:
                     showPopupWindow();
@@ -132,6 +179,7 @@ public class UserInfoActivity extends AppCompatActivity {
                 case R.id.take_photo:
                     if(PermissionUtil.openCameraPermission(UserInfoActivity.this)){
                         mTempPhotoPath = GetPhotoUtil.takePhoto(UserInfoActivity.this);
+                        user.setUserHead(mTempPhotoPath);
                     }
                     popupWindow.dismiss();
                     break;
@@ -192,7 +240,6 @@ public class UserInfoActivity extends AppCompatActivity {
         popupWindow.showAtLocation(parent, Gravity.BOTTOM,0,0);
     }
 
-
     /**
      * 权限申请结果回调
      */
@@ -229,7 +276,6 @@ public class UserInfoActivity extends AppCompatActivity {
                         RequestOptions requestOptions1 = new RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).circleCrop();
                         //将相册图片显示在 userHead上
                         Glide.with(this).load(filePath).apply(requestOptions1).into(userHead);
-                        //TODO  user.setUserHeadImg(filePath);
                     }
                     break;
                 case FinalVariableUtil.RC_TAKE_PHOTO:

@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.MyAttentionListAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.User;
 import cn.edu.hebtu.software.zhilvdemo.R;
 
 import android.content.Intent;
@@ -25,7 +26,7 @@ import java.util.List;
  * @Version:        1.0
  */
 public class MyAttentionListActivity extends AppCompatActivity {
-    private List<String> mDatas;
+    private List<User> mDatas;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -47,11 +48,8 @@ public class MyAttentionListActivity extends AppCompatActivity {
     }
 
     private void initData(){
-        mDatas = new ArrayList<String>();
-        for (int i = 0; i < 50; i++)
-        {
-            mDatas.add( "一二三四五六七八九十一二三四五六七八九十 " + i);
-        }
+        Intent intent = getIntent();
+        mDatas = intent.getParcelableArrayListExtra("attenList");
     }
 
     private void initView(){
@@ -62,13 +60,13 @@ public class MyAttentionListActivity extends AppCompatActivity {
         manager.setOrientation(RecyclerView.VERTICAL);
         rl.setLayoutManager(manager);
         //设置适配器
-        MyAttentionListAdapter adapter = new MyAttentionListAdapter(this, R.layout.item_my_attention_list, mDatas);
+        MyAttentionListAdapter adapter = new MyAttentionListAdapter(this, R.layout.item_my_attention_list, mDatas,true);
         adapter.setOnItemClickListener(new MyAttentionListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
                 Intent intent = new Intent(MyAttentionListActivity.this, OtherUserInfoActivity.class);
+                intent.putExtra("other", mDatas.get(position));
                 startActivity(intent);
-                Toast.makeText(getApplicationContext(), "Click" + mDatas.get(position), Toast.LENGTH_SHORT).show();
             }
         });
         rl.setAdapter(adapter);

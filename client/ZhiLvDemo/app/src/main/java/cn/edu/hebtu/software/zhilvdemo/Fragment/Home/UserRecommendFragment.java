@@ -23,6 +23,7 @@ import java.util.List;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.MyAttentionListAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.User;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.OtherUserInfoActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
 
@@ -34,24 +35,20 @@ import cn.edu.hebtu.software.zhilvdemo.R;
  * @Version:        1.0
  */
 public class UserRecommendFragment extends Fragment {
-    private List<String> mDatas;
+    private List<User> mDatas;
     private View view;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_user_recommend, container, false);
-        initData();
-        initView();
+//        initData();
+//        initView();
 
         return view;
     }
 
     private void initData(){
-        mDatas = new ArrayList<String>();
-        for (int i = 0; i < 50; i++)
-        {
-            mDatas.add( "userRecommend -> " + i);
-        }
+
     }
 
     private void initView(){
@@ -63,11 +60,12 @@ public class UserRecommendFragment extends Fragment {
         rl.setLayoutManager(manager);
         //设置适配器
         Log.i("UserRecommendPManager", getParentFragment()+"");
-        MyAttentionListAdapter adapter = new MyAttentionListAdapter(getActivity(), R.layout.item_my_fans_list, mDatas);
+        MyAttentionListAdapter adapter = new MyAttentionListAdapter(getActivity(), R.layout.item_my_fans_list, mDatas,false);
         adapter.setOnItemClickListener(new MyAttentionListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
                 Intent intent = new Intent(getActivity().getApplicationContext(), OtherUserInfoActivity.class);
+                intent.putExtra("other", mDatas.get(position));
                 startActivity(intent);
                 Toast.makeText(getActivity().getApplicationContext(), "User-Recommend-" + mDatas.get(position), Toast.LENGTH_SHORT).show();
             }
@@ -81,7 +79,7 @@ public class UserRecommendFragment extends Fragment {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        adapter.replaceAll(getData());
+//                        adapter.replaceAll(getData());
                         refreshLayout.finishRefresh();
                     }
                 },1000);
@@ -89,12 +87,12 @@ public class UserRecommendFragment extends Fragment {
         });
     }
 
-    private List<String> getData(){
-        for (int i = 0; i < 6; i++)
-        {
-            mDatas.add( i,"ADD -> " + i);
-        }
-        return mDatas;
-    }
+//    private List<String> getData(){
+//        for (int i = 0; i < 6; i++)
+//        {
+//            mDatas.add( i,"ADD -> " + i);
+//        }
+//        return mDatas;
+//    }
 
 }

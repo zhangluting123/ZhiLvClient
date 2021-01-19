@@ -5,6 +5,8 @@ import android.app.Application;
 import com.baidu.mapapi.SDKInitializer;
 import com.mob.MobSDK;
 
+import cn.edu.hebtu.software.zhilvdemo.Data.User;
+
 /**
  * @ProjectName:    ZhiLv
  * @Description:    
@@ -24,12 +26,31 @@ public class MyApplication extends Application {
     private double searchLatitude;
     private double searchLongitude;
 
+    private String ip;
+    private User user;
+
     @Override
     public void onCreate() {
         super.onCreate();
         //百度地图初始化
         SDKInitializer.initialize(getApplicationContext());
         MobSDK.init(this,"320ceaf58e03a","637027746d83b354d031bd8f6c05903d");
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getTopic() {

@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTabHost;
+import cn.edu.hebtu.software.zhilvdemo.DetailActivity.MyAttentionListActivity;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.AddTravelsFragment;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.DestinationFragment;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.HomeFragment;
@@ -65,11 +66,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        MyApplication data = (MyApplication)getApplication();
+        data.setIp(getString(R.string.internet_ip));
+
         //如果定位权限已经开启，则进行定位，否则开启权限，在权限回调成功后开启定位
         if(PermissionUtil.openLocationPermission(this)){
             locationOption();
         }
 
+        initView();
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void initView(){
         FragmentTabHost fragmentTabHost = findViewById(android.R.id.tabhost);
         fragmentTabHost.setup(this,
                 getSupportFragmentManager(),//FragmentManager对象用来管理多个Fragment
@@ -231,6 +241,22 @@ public class MainActivity extends AppCompatActivity {
                 if (fragment != null) {
                     // 这里就会调用我们Fragment中的onRequestPermissionsResult方法
                     fragment.onActivityResult(requestCode,resultCode,data);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 获取到Activity下的Fragment
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        if (fragments != null) {
+            // 查找在Fragment中onRequestPermissionsResult方法并调用
+            for (Fragment fragment : fragments) {
+                if (fragment != null) {
+                    // 这里就会调用我们Fragment中的onRequestPermissionsResult方法
+                    fragment.onResume();
                 }
             }
         }

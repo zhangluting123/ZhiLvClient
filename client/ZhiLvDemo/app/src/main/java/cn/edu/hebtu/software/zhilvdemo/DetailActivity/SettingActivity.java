@@ -11,6 +11,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import cn.edu.hebtu.software.zhilvdemo.Activity.ChangeEmailActivity;
+import cn.edu.hebtu.software.zhilvdemo.Activity.ChangePhoneActivity;
+import cn.edu.hebtu.software.zhilvdemo.Activity.ChangePwdActivity;
 import cn.edu.hebtu.software.zhilvdemo.Activity.ForgetPwdActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
 
@@ -72,11 +75,15 @@ public class SettingActivity extends AppCompatActivity {
                     startActivity(intent);
                     break;
                 case R.id.changePhone:
+                    intent = new Intent(SettingActivity.this, ChangePhoneActivity.class);
+                    startActivity(intent);
                     break;
                 case R.id.changeEmail:
+                    intent = new Intent(SettingActivity.this, ChangeEmailActivity.class);
+                    startActivity(intent);
                     break;
                 case R.id.changePassword:
-                    intent = new Intent(SettingActivity.this, ForgetPwdActivity.class);
+                    intent = new Intent(SettingActivity.this, ChangePwdActivity.class);
                     startActivity(intent);
                     break;
             }
