@@ -11,6 +11,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import cn.edu.hebtu.software.zhilvdemo.Data.Topic;
 import cn.edu.hebtu.software.zhilvdemo.R;
 
 /**
@@ -23,9 +24,9 @@ import cn.edu.hebtu.software.zhilvdemo.R;
 public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.ViewHolder> {
     private Context context;
     private int itemLayout;
-    private List<String> mDatas = new ArrayList<String>();
+    private List<Topic> mDatas = new ArrayList<>();
 
-    public TopicListAdapter(Context context, int itemLayout, List<String> mDatas) {
+    public TopicListAdapter(Context context, int itemLayout, List<Topic> mDatas) {
         this.context = context;
         this.itemLayout = itemLayout;
         this.mDatas = mDatas;
@@ -40,10 +41,8 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull TopicListAdapter.ViewHolder holder, int position) {
-        holder.topic.setText(mDatas.get(position));
-
+        holder.topic.setText(mDatas.get(position).getTitle());
     }
-
 
     @Override
     public int getItemCount() {
@@ -83,6 +82,11 @@ public class TopicListAdapter extends RecyclerView.Adapter<TopicListAdapter.View
     //写一个公共的方法
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.onItemClickListener = listener;
+    }
+
+    public void refresh(List<Topic> list){
+        this.mDatas = list;
+        notifyDataSetChanged();
     }
 
 }

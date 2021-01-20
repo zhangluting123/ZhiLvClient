@@ -1,7 +1,10 @@
 package cn.edu.hebtu.software.zhilvdemo.Fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,13 +17,24 @@ import android.widget.RelativeLayout;
 
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.baidu.mapapi.search.sug.OnGetSuggestionResultListener;
 import com.baidu.mapapi.search.sug.SuggestionResult;
 import com.baidu.mapapi.search.sug.SuggestionSearch;
 import com.baidu.mapapi.search.sug.SuggestionSearchOption;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,13 +46,16 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SearchView;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.Fragment;
+import cn.edu.hebtu.software.zhilvdemo.Data.Topic;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.DestinationDetailActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.SceneDetailActivity;
+import cn.edu.hebtu.software.zhilvdemo.DetailActivity.SearchTopicActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.ShowTopicActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.TopicDetailActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
 import cn.edu.hebtu.software.zhilvdemo.Util.DensityUtil;
+import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
 
 /**
  * @ProjectName:    ZhiLv
@@ -69,6 +86,24 @@ public class DestinationFragment extends Fragment {
     private boolean submitFlag = false;
 
     private List<Map<String,String>> sugList;
+    private List<Topic> topics;
+
+    @SuppressLint("HandlerLeak")
+    private final Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what){
+                case 1001:
+                    Toast.makeText(getActivity().getApplicationContext(), (CharSequence)msg.obj, Toast.LENGTH_SHORT).show();
+                    break;
+                case 1003:
+                    topics = (List<Topic>) msg.obj;
+                    topicText1.setText(topics.get(0).getTitle());
+                    topicText2.setText(topics.get(1).getTitle());
+                    break;
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -76,7 +111,7 @@ public class DestinationFragment extends Fragment {
         if(null == view) {
             view = inflater.inflate(R.layout.fragment_destination, null);
             data = (MyApplication)getActivity().getApplication();
-
+            topicTwiceList();
             getViews();
             registListener();
 
@@ -169,12 +204,12 @@ public class DestinationFragment extends Fragment {
                     break;
                 case R.id.destination_rl_topic1:
                     intent = new Intent(getActivity().getApplicationContext(), TopicDetailActivity.class);
-                    intent.putExtra("topic", "西安之行");
+                    intent.putExtra("topic", topics.get(0).getTitle());
                     startActivity(intent);
                     break;
                 case R.id.destination_rl_topic2:
                     intent = new Intent(getActivity().getApplicationContext(), TopicDetailActivity.class);
-                    intent.putExtra("topic", "拉萨之行");
+                    intent.putExtra("topic", topics.get(1).getTitle());
                     startActivity(intent);
                     break;
             }
@@ -249,5 +284,34 @@ public class DestinationFragment extends Fragment {
         listPopupWindow.show();
     }
 
-
+    private void topicTwiceList(){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Message msg = Message.obtain();
+                    if(DetermineConnServer.isConnByHttp(getActivity().getApplicationContext())) {
+                        URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/topic/twiceUsed" );
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                        String info = reader.readLine();
+                        Gson gson = new Gson();
+                        Type type = new TypeToken<List<Topic>>(){}.getType();
+                        List<Topic> topicList = gson.fromJson(info,type);
+                        msg.what = 1003;
+                        msg.obj = topicList;
+                    }else {
+                        msg.what = 1001;
+                        msg.obj = "未连接到服务器";
+                    }
+                    mHandler.sendMessage(msg);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
 }
