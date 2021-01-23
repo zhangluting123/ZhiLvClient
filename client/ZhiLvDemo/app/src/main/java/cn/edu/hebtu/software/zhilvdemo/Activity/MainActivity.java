@@ -5,9 +5,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTabHost;
-import cn.edu.hebtu.software.zhilvdemo.DetailActivity.MyAttentionListActivity;
-import cn.edu.hebtu.software.zhilvdemo.Fragment.AddTravelsFragment;
+import cn.edu.hebtu.software.zhilvdemo.Data.MoreDetail;
+import cn.edu.hebtu.software.zhilvdemo.DetailActivity.AddTravelsActivity;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.DestinationFragment;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.HomeFragment;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.MessageFragment;
@@ -16,15 +15,12 @@ import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
 import cn.edu.hebtu.software.zhilvdemo.Util.PermissionUtil;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ActionMenuView;
@@ -41,7 +37,9 @@ import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
+import com.next.easynavigation.view.EasyNavigationBar;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,10 +53,17 @@ import java.util.Map;
  */
 public class MainActivity extends AppCompatActivity {
     private long exitTime;
-    private final Map<String, ImageView> imageViewMap = new HashMap<>();
-    private final Map<String, TextView> textViewMap = new HashMap<>();
+    private EasyNavigationBar navigationBar;
+    private List<Fragment> fragments = new ArrayList<>();
+    private String[] tabText = {"首页", "目的地", "", "消息", "我的"};
+    //未选中icon
+    private int[] normalIcon = {R.mipmap.home1, R.mipmap.destination1, R.mipmap.add_travels, R.mipmap.message1, R.mipmap.mine1};
+    //选中时icon
+    private int[] selectIcon = {R.mipmap.home2, R.mipmap.destination2, R.mipmap.add_travels, R.mipmap.message2, R.mipmap.mine2};
     private LocationClient locationClient;
     private LocationClientOption locationClientOption;
+
+    private MyApplication data;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -66,137 +71,47 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MyApplication data = (MyApplication)getApplication();
+        data = (MyApplication)getApplication();
         data.setIp(getString(R.string.internet_ip));
+
 
         //如果定位权限已经开启，则进行定位，否则开启权限，在权限回调成功后开启定位
         if(PermissionUtil.openLocationPermission(this)){
             locationOption();
         }
-
         initView();
-
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void initView(){
-        FragmentTabHost fragmentTabHost = findViewById(android.R.id.tabhost);
-        fragmentTabHost.setup(this,
-                getSupportFragmentManager(),//FragmentManager对象用来管理多个Fragment
-                android.R.id.tabcontent);//真正显示内容页面的容器的id
+        navigationBar = findViewById(R.id.navigationBar);
 
-        //主页
-        TabHost.TabSpec home = fragmentTabHost.newTabSpec("home")
-                .setIndicator(getTabSpecView("home",R.mipmap.home1,"主页"));
-        fragmentTabHost.addTab(home, HomeFragment.class, null);
-        //目的地
-        TabHost.TabSpec destination = fragmentTabHost.newTabSpec("destination")
-                .setIndicator(getTabSpecView("destination",R.mipmap.destination1,"目的地"));
-        fragmentTabHost.addTab(destination, DestinationFragment.class, null);
-        //添加
-        TabHost.TabSpec addTravels = fragmentTabHost.newTabSpec("addTravels")
-                .setIndicator(getAddView("addTravels",R.mipmap.add_travels));
-        fragmentTabHost.addTab(addTravels, AddTravelsFragment.class,null);
-        //消息
-        TabHost.TabSpec message = fragmentTabHost.newTabSpec("message")
-                .setIndicator(getTabSpecView("message",R.mipmap.message1,"消息"));
-        fragmentTabHost.addTab(message, MessageFragment.class, null);
+        fragments.add(new HomeFragment());
+        fragments.add(new DestinationFragment());
+        fragments.add(new MessageFragment());
+        fragments.add(new MineFragment());
 
-        //我的
-        TabHost.TabSpec mine = fragmentTabHost.newTabSpec("mine")
-                .setIndicator(getTabSpecView("mine",R.mipmap.mine1,"我的"));
-        fragmentTabHost.addTab(mine, MineFragment.class, null);
-        //默认选中第一项
-//        int tab = 0;
-        fragmentTabHost.setCurrentTab(0);
-        imageViewMap.get("home").setImageResource(R.mipmap.home2);
-        textViewMap.get("home").setTextColor(getResources().getColor(R.color.MyThemeColor));
+        navigationBar.titleItems(tabText)
+                .normalIconItems(normalIcon)
+                .selectIconItems(selectIcon)
+                .selectTextColor(getResources().getColor(R.color.MyThemeColor))
+                .fragmentList(fragments)
+                .mode(EasyNavigationBar.MODE_ADD)
+                .fragmentManager(getSupportFragmentManager())
+                .build();
 
-
-        //切换选项卡的事件监听器
-        fragmentTabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+        navigationBar.getAddImage().setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onTabChanged(String tabId) {
-                switch (tabId){
-                    case "home":
-                        imageViewMap.get("home").setImageResource(R.mipmap.home2);
-                        imageViewMap.get("destination").setImageResource(R.mipmap.destination1);
-                        imageViewMap.get("message").setImageResource(R.mipmap.message1);
-                        imageViewMap.get("mine").setImageResource(R.mipmap.mine1);
-                        textViewMap.get("home").setTextColor(getResources().getColor(R.color.MyThemeColor));
-                        textViewMap.get("destination").setTextColor(Color.BLACK);
-                        textViewMap.get("message").setTextColor(Color.BLACK);
-                        textViewMap.get("mine").setTextColor(Color.BLACK);
-                        break;
-                    case "destination":
-                        imageViewMap.get("home").setImageResource(R.mipmap.home1);
-                        imageViewMap.get("destination").setImageResource(R.mipmap.destination2);
-                        imageViewMap.get("message").setImageResource(R.mipmap.message1);
-                        imageViewMap.get("mine").setImageResource(R.mipmap.mine1);
-                        textViewMap.get("home").setTextColor(Color.BLACK);
-                        textViewMap.get("destination").setTextColor(getResources().getColor(R.color.MyThemeColor));
-                        textViewMap.get("message").setTextColor(Color.BLACK);
-                        textViewMap.get("mine").setTextColor(Color.BLACK);
-                        break;
-                    case "message":
-                        imageViewMap.get("home").setImageResource(R.mipmap.home1);
-                        imageViewMap.get("destination").setImageResource(R.mipmap.destination1);
-                        imageViewMap.get("message").setImageResource(R.mipmap.message2);
-                        imageViewMap.get("mine").setImageResource(R.mipmap.mine1);
-                        textViewMap.get("home").setTextColor(Color.BLACK);
-                        textViewMap.get("destination").setTextColor(Color.BLACK);
-                        textViewMap.get("message").setTextColor(getResources().getColor(R.color.MyThemeColor));
-                        textViewMap.get("mine").setTextColor(Color.BLACK);
-                        break;
-                    case "mine":
-                        imageViewMap.get("home").setImageResource(R.mipmap.home1);
-                        imageViewMap.get("destination").setImageResource(R.mipmap.destination1);
-                        imageViewMap.get("message").setImageResource(R.mipmap.message1);
-                        imageViewMap.get("mine").setImageResource(R.mipmap.mine2);
-                        textViewMap.get("home").setTextColor(Color.BLACK);
-                        textViewMap.get("destination").setTextColor(Color.BLACK);
-                        textViewMap.get("message").setTextColor(Color.BLACK);
-                        textViewMap.get("mine").setTextColor(getResources().getColor(R.color.MyThemeColor));
-                        break;
+            public void onClick(View v) {
+                if(null != data.getUser()){
+                    startActivity(new Intent(MainActivity.this, AddTravelsActivity.class));
+                }else{
+                    Toast.makeText(getApplicationContext(), "请先登录", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private View getTabSpecView(String tag, int imageResId, String title) {
-        LayoutInflater layoutInflater = getLayoutInflater();
-        @SuppressLint("InflateParams") 
-        View view = layoutInflater.inflate(R.layout.tabspec_layout,null);
 
-        //获取控件对象
-        ImageView imageView = view.findViewById(R.id.iv_icon);
-        imageView.setImageResource(imageResId);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(40, 40);
-        imageView.setLayoutParams(lp);
-
-        TextView textView = view.findViewById(R.id.tv_icon);
-        textView.setText(title);
-
-        imageViewMap.put(tag,imageView);
-        textViewMap.put(tag,textView);
-        return view;
-    }
-
-    private View getAddView(String tag, int imageResId){
-        LayoutInflater layoutInflater = getLayoutInflater();
-        @SuppressLint("InflateParams")
-        View view = layoutInflater.inflate(R.layout.tabspec_layout,null);
-        //获取控件对象
-        ImageView imageView = view.findViewById(R.id.iv_icon);
-        imageView.setImageResource(imageResId);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(80, 80);
-        imageView.setLayoutParams(lp);
-
-        imageViewMap.put(tag,imageView);
-        return view;
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

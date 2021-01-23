@@ -21,6 +21,7 @@ import java.util.List;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.StaggeredGridAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.Note;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.TravelDetailActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.VideoDetailActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
@@ -35,7 +36,7 @@ import cn.edu.hebtu.software.zhilvdemo.R;
 public class TravelsRecommendFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private SmartRefreshLayout refreshLayout;
-    private List<String> mDatas = new ArrayList<String>();
+    private List<Note> mDatas = new ArrayList<>();
     private String mTitle = "Defaut Value";
     private View view;
 
@@ -45,7 +46,7 @@ public class TravelsRecommendFragment extends Fragment {
         mRecyclerView = view.findViewById(R.id.travels_recommend_recycler);
         refreshLayout = view.findViewById(R.id.refresh_layout);
 
-        initDatas();
+//        initDatas();
         showStagger();
 
         return view;
@@ -66,7 +67,7 @@ public class TravelsRecommendFragment extends Fragment {
         adapter.setOnItemClickListener(new StaggeredGridAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                if(mDatas.get(position).contains("2")){
+                if(!mDatas.get(position).isFlag()){
                     Intent intent = new Intent(getActivity(), VideoDetailActivity.class);
                     startActivity(intent);
                 }else{
@@ -84,7 +85,7 @@ public class TravelsRecommendFragment extends Fragment {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        adapter.replaceAll(getData());
+//                        adapter.replaceAll(getData());
                         refreshLayout.finishRefresh();
                     }
                 },1000);
@@ -92,18 +93,4 @@ public class TravelsRecommendFragment extends Fragment {
         });
     }
 
-    private void initDatas(){
-        for (int i = 0; i < 30; i++)
-        {
-            mDatas.add(mTitle + " -> " + i);
-        }
-    }
-
-    private List<String> getData(){
-        for (int i = 0; i < 3; i++)
-        {
-            mDatas.add(i," -> ADD" + i);
-        }
-        return mDatas;
-    }
 }

@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.StaggeredGridAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.Note;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.TravelDetailActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.VideoDetailActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
@@ -28,7 +29,7 @@ import cn.edu.hebtu.software.zhilvdemo.R;
  */
 public class TravelsMineFragment extends Fragment {
     private RecyclerView mRecyclerView;
-    private List<String> mDatas = new ArrayList<String>();
+    private List<Note> mDatas = new ArrayList<>();
     private String mTitle = "Travels";
     private View view;
     @Nullable
@@ -38,7 +39,7 @@ public class TravelsMineFragment extends Fragment {
             view = inflater.inflate(R.layout.fragment_travels_mine,container,false);
             mRecyclerView = view.findViewById(R.id.travels_mine_recycler);
 
-            initDatas();
+//            initDatas();
             showStagger();
 
         }
@@ -61,7 +62,7 @@ public class TravelsMineFragment extends Fragment {
         adapter.setOnItemClickListener(new StaggeredGridAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                if(mDatas.get(position).contains("2")){
+                if(!mDatas.get(position).isFlag()){
                     Intent intent = new Intent(getActivity(), VideoDetailActivity.class);
                     startActivity(intent);
                 }else{
@@ -72,21 +73,6 @@ public class TravelsMineFragment extends Fragment {
         });
         mRecyclerView.setAdapter(adapter);
 
-    }
-
-    private void initDatas(){
-        for (int i = 0; i < 10; i++)
-        {
-            mDatas.add(mTitle + " -> " + i);
-        }
-    }
-
-    private List<String> getData(){
-        for (int i = 0; i < 3; i++)
-        {
-            mDatas.add(i," -> ADD" + i);
-        }
-        return mDatas;
     }
 
 }

@@ -87,7 +87,7 @@ public class SearchTopicActivity extends AppCompatActivity {
         adapter.setOnItemClickListener(new TopicListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                data.setTopic(mDatas.get(position).getTitle());
+                data.setTopic(mDatas.get(position));
                 finish();
             }
         });

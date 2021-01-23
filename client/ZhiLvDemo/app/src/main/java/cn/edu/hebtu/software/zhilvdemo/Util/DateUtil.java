@@ -34,11 +34,19 @@ public class DateUtil {
     }
 
     public static String getDateStr(Date date){
-        return formatDate.format(date);
+        if(null != date) {
+            return formatDate.format(date);
+        }else{
+            return null;
+        }
     }
 
     public static String getDateTimeStr(Date date){
-        return formatDateTime.format(date);
+        if(null != date) {
+            return formatDateTime.format(date);
+        }else{
+            return null;
+        }
     }
 
 }

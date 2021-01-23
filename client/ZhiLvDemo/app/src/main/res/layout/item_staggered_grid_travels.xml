@@ -18,8 +18,8 @@
         <ImageView
             android:id="@+id/stagger_iv_travelImg"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:scaleType="fitXY"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
             android:adjustViewBounds="true"
             android:src="@mipmap/img_default"/>
 

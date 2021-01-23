@@ -106,7 +106,7 @@ public class MineFragment extends Fragment {
         tabs = view.findViewById(R.id.pager_tabs);
         pages.setOffscreenPageLimit(titles.length);
         initFragment();
-        adapter = new ChannelPagerAdapter(super.getActivity().getSupportFragmentManager(),fragmentList,titles);
+        adapter = new ChannelPagerAdapter(super.getChildFragmentManager(),fragmentList,titles);
         pages.setAdapter(adapter);
         //每个选项卡相同权重，必须设置在setViewPager()之前
         tabs.setShouldExpand(true);

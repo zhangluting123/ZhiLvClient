@@ -63,6 +63,8 @@ public class AddVideoActivity extends AppCompatActivity {
 
         data = (MyApplication)getApplication();
         videoLocationText.setText(data.getProvince() + "·" + data.getCity());
+        data.setTopic(null);
+        data.setMoreDetail(null);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -218,8 +220,7 @@ public class AddVideoActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         if(null != data.getTopic()) {
-            videoTopicText.setText(data.getTopic());
-            data.setTopic(null);
+            videoTopicText.setText(data.getTopic().getTitle());
         }
         super.onResume();
     }

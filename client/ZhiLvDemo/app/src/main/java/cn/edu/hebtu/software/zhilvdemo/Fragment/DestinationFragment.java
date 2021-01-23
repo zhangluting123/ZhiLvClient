@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListPopupWindow;
 import android.widget.RelativeLayout;
 
@@ -110,15 +111,14 @@ public class DestinationFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(null == view) {
             view = inflater.inflate(R.layout.fragment_destination, null);
-            data = (MyApplication)getActivity().getApplication();
             topicTwiceList();
             getViews();
             registListener();
-
-
         }
-
+        data = (MyApplication)getActivity().getApplication();
         location.setText(data.getCity());
+        searchView.clearFocus();
+        searchView.setFocusable(false);
 
         ViewGroup parent = (ViewGroup) view.getParent();
         if(null != parent){
@@ -157,11 +157,13 @@ public class DestinationFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Log.e("searchTopic", "submit");
-                //清除焦点，收软键盘
-                searchView.clearFocus();
+                submitFlag = true;
+                Log.e("submitFlag1", submitFlag+"");
                 data.setSearchText(query);
                 searchView.setQueryHint(query);
+                Log.e("submitFlag2", submitFlag+"");
                 searchView.setQuery(null, false);
+                Log.e("submitFlag3", submitFlag+"");
                 Intent intent = new Intent(getActivity().getApplicationContext(), DestinationDetailActivity.class);
                 startActivity(intent);
                 return false;
@@ -170,6 +172,7 @@ public class DestinationFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String newText) {
                 Log.e("searchTopic", "change");
+                Log.e("submitFlag4", submitFlag+"");
                 String text =  searchView.getQuery().toString();
                 if(null != text && !text.contains("\n") && !submitFlag){
                     SugSearch();
@@ -204,12 +207,16 @@ public class DestinationFragment extends Fragment {
                     break;
                 case R.id.destination_rl_topic1:
                     intent = new Intent(getActivity().getApplicationContext(), TopicDetailActivity.class);
-                    intent.putExtra("topic", topics.get(0).getTitle());
+                    if(null != topics){
+                        intent.putExtra("topic", topics.get(0).getTitle());
+                    }
                     startActivity(intent);
                     break;
                 case R.id.destination_rl_topic2:
                     intent = new Intent(getActivity().getApplicationContext(), TopicDetailActivity.class);
-                    intent.putExtra("topic", topics.get(1).getTitle());
+                    if(null != topics){
+                        intent.putExtra("topic", topics.get(1).getTitle());
+                    }
                     startActivity(intent);
                     break;
             }
@@ -243,9 +250,6 @@ public class DestinationFragment extends Fragment {
                     listPopupWindow.dismiss();
                 }
                 showListPopupWindow();
-
-
-
             }
         };
         suggestionSearch.setOnGetSuggestionResultListener(listener);
@@ -277,7 +281,6 @@ public class DestinationFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 listPopupWindow.dismiss();
-                submitFlag = true;
                 searchView.setQuery(sugList.get(position).get("name"),true);
             }
         });
@@ -313,5 +316,13 @@ public class DestinationFragment extends Fragment {
                 }
             }
         }.start();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        location.setText(data.getCity());
+        searchView.clearFocus();
+        searchView.setFocusable(false);
     }
 }

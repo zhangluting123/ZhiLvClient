@@ -5,6 +5,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.StaggeredGridAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.Note;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
 import cn.edu.hebtu.software.zhilvdemo.Util.BaiduMapUtil.PoiOverlay;
@@ -69,7 +70,7 @@ public class DestinationDetailActivity extends AppCompatActivity {
     private SuggestionSearch suggestionSearch;
     private ListPopupWindow listPopupWindow;
 
-    private List<String> mDatas;
+    private List<Note> mDatas;
 
     private MyApplication data;
     private List<Map<String,String>> sugList;
@@ -102,7 +103,7 @@ public class DestinationDetailActivity extends AppCompatActivity {
     }
     private void initView(){
         getViews();
-        initData();
+//        initData();
         //显示俯视图
         showOverLook();
         //比例尺操作
@@ -130,7 +131,7 @@ public class DestinationDetailActivity extends AppCompatActivity {
         adapter.setOnItemClickListener(new StaggeredGridAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                if(mDatas.get(position).contains("2")){
+                if(!mDatas.get(position).isFlag()){
                     Intent intent = new Intent(DestinationDetailActivity.this, VideoDetailActivity.class);
                     startActivity(intent);
                 }else{
@@ -193,12 +194,6 @@ public class DestinationDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void initData(){
-        mDatas = new ArrayList<>();
-        for(int i = 0; i < 15; ++i){
-            mDatas.add("topic--->" + i);
-        }
-    }
 
     /**
      *  @author: 张璐婷

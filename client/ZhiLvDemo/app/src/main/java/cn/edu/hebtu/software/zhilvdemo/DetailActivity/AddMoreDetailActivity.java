@@ -3,13 +3,18 @@ package cn.edu.hebtu.software.zhilvdemo.DetailActivity;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import cn.edu.hebtu.software.zhilvdemo.Data.MoreDetail;
 import cn.edu.hebtu.software.zhilvdemo.R;
+import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.DensityUtil;
 
 import android.app.Dialog;;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.telecom.Call;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +39,9 @@ public class AddMoreDetailActivity extends AppCompatActivity {
     private EditText days;
     private TextView people;
     private EditText money;
+
+    private MyApplication data;
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +50,17 @@ public class AddMoreDetailActivity extends AppCompatActivity {
 
         getViews();
         registListener();
+
+        data = (MyApplication)getApplication();
+        if(null != data.getMoreDetail()){
+            MoreDetail detail = data.getMoreDetail();
+            destination.setText(detail.getDestination());
+            traffic.setText(detail.getTraffic());
+            beginDate.setText(detail.getBeginDate()+"");
+            days.setText(detail.getDays()+"");
+            people.setText(detail.getPeople());
+            money.setText(detail.getMoney());
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -76,6 +95,20 @@ public class AddMoreDetailActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.add_more_detail_btnSubmit:
+                    data = (MyApplication)getApplication();
+                    MoreDetail moreDetail = new MoreDetail();
+                    moreDetail.setDestination(destination.getText().toString());
+                    moreDetail.setTraffic(traffic.getText().toString());
+                    moreDetail.setPeople(people.getText().toString());
+                    moreDetail.setBeginDate(DateUtil.getDate(beginDate.getText().toString()));
+                    if(!"".equals(days.getText().toString())) {
+                        moreDetail.setDays(Integer.parseInt(days.getText().toString()));
+                    }
+                    if(!"".equals(money.getText().toString())) {
+                        moreDetail.setMoney(Integer.parseInt(money.getText().toString()));
+                    }
+                    data.setMoreDetail(moreDetail);
+                    finish();
                     break;
                 case R.id.add_more_detail_et_beginDate:
                     initTimePicker();

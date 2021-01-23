@@ -8,13 +8,19 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import cn.edu.hebtu.software.zhilvdemo.Data.Note;
+import cn.edu.hebtu.software.zhilvdemo.Data.Travels;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.OtherUserInfoActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
+import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
 
 
 /**
@@ -29,12 +35,14 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
     private static final int TYPE_TRAVELS = 0;
     private static final int TYPE_VIDEO = 1;
 
-    private List<String> mDatas = new ArrayList<>();
+    private List<Note> mDatas = new ArrayList<>();
     private Context context;
+    private MyApplication data;
 
-    public StaggeredGridAdapter(List<String> mDatas,  Context context) {
+    public StaggeredGridAdapter(List<Note> mDatas,  Context context) {
         this.mDatas = mDatas;
         this.context = context;
+        data = (MyApplication)context.getApplicationContext();
     }
 
     @NonNull
@@ -53,9 +61,23 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof MyViewHolderTravels){
-            ((MyViewHolderTravels) holder).travelTitle.setText(mDatas.get(position));
+            Travels travels = mDatas.get(position).getTravels();
+            ((MyViewHolderTravels) holder).travelTitle.setText(travels.getTitle());
+            RequestOptions options = new RequestOptions();
+            if(travels.getImgList().size() > 0){
+                Glide.with(context).
+                        load("http://"+data.getIp()+":8080/ZhiLvProject/"+travels.getImgList().get(0).getPath())
+                        .apply(options)
+                        .into(((MyViewHolderTravels)holder).travelImg);
+            }
+
+            ((MyViewHolderTravels) holder).userName.setText(travels.getUser().getUserName());
+            Glide.with(context).
+                    load("http://"+data.getIp()+":8080/ZhiLvProject/"+travels.getUser().getUserHead())
+                    .apply(options)
+                    .into(((MyViewHolderTravels)holder).userHead);
         }else{
-            ((MyViewHolderVideo) holder).videoTitle.setText(mDatas.get(position));
+            ((MyViewHolderVideo) holder).videoTitle.setText(mDatas.get(position).getVideo().getTitle());
 
 //            Bitmap bitmap = getVideoThumbnail("http://localhost:8080/MoJi/video/test-video.mp4");
 //            ViewGroup.LayoutParams params = ((MyViewHolderVideo) holder).video.getLayoutParams();
@@ -104,6 +126,7 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, OtherUserInfoActivity.class);
+                    intent.putExtra("other", mDatas.get(getLayoutPosition()).getTravels().getUser());
                     context.startActivity(intent);
                 }
             });
@@ -133,6 +156,7 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, OtherUserInfoActivity.class);
+//                    intent.putExtra("other", mDatas.get(getLayoutPosition()).getVideo().getUser());
                     context.startActivity(intent);
                 }
             });
@@ -142,7 +166,7 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
     //复写一个方法，来返回条目类型
     @Override
     public int getItemViewType(int position) {
-        if(mDatas.get(position).contains("2")){
+        if(!mDatas.get(position).isFlag()){
             return TYPE_VIDEO;
         }else{
             return TYPE_TRAVELS;
@@ -164,9 +188,10 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.onItemClickListener = listener;
     }
 
-    public void replaceAll(List<String> mDatas){
+    public void replaceAll(List<Note> mDatas){
         this.mDatas = mDatas;
-        notifyItemRangeInserted(0, 3);
+        notifyDataSetChanged();
+//        notifyItemRangeInserted(0, 3);
     }
 }
 

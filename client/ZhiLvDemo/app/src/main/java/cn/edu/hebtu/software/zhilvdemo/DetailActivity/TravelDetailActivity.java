@@ -7,16 +7,24 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.GuidePageAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.MoreDetail;
+import cn.edu.hebtu.software.zhilvdemo.Data.Note;
+import cn.edu.hebtu.software.zhilvdemo.Data.Travels;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
+import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
 import cn.edu.hebtu.software.zhilvdemo.ViewCustom.InnerScrollListView;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,11 +33,24 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.mob.tools.RxMob;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +94,22 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
     private ImageView[] ivPointArray;
 
     private MyApplication data;
+    private Travels travels;
+
+    @SuppressLint("HandlerLeak")
+    private final Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what){
+                case 1001:
+                    Toast.makeText(getApplicationContext(), (CharSequence)msg.obj, Toast.LENGTH_SHORT).show();
+                    break;
+                case 1002:
+                    finish();
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,16 +120,54 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
 
         getViews();
         registListener();
-        //加载ViewPager
-        initViewPager();
-        //加载底部圆点
-        initPoint();
-        //判断是否是当前用户，是用户则有菜单功能
-        addMenu();
+        //判断是否是当前用户，是则有菜单功能
+        if(null != data.getUser()){
+            addMenu();
+        }
+
+       initData();
 
 
         //获得评论
 //        getComments();
+    }
+
+    private void initData(){
+        Intent intent = getIntent();
+        travels = intent.getParcelableExtra("travels");
+        time.setText(DateUtil.getDateTimeStr(travels.getUploadTime()));
+        title.setText(travels.getTitle());
+        RequestOptions options = new RequestOptions().circleCrop();
+        Glide.with(this).load("http://"+data.getIp()+":8080/ZhiLvProject/"+travels.getUser().getUserHead()).apply(options).into(userHeadImg);
+        userName.setText(travels.getUser().getUserName());
+        location.setText(travels.getLocation());
+        if(null != travels.getTopic()) {
+            topic.setText("#"+travels.getTopic().getTitle()+"#");
+        }
+        route.setText(travels.getRoute());
+        scene.setText(travels.getScene());
+        ticket.setText(travels.getTicket());
+        hotel.setText(travels.getHotel());
+        tips.setText(travels.getTips());
+        //more detail
+        MoreDetail detail = travels.getDetail();
+        destination.setText(detail.getDestination());
+        traffic.setText(detail.getTraffic());
+        beginDate.setText(DateUtil.getDateStr(detail.getBeginDate()));
+        if(null != detail.getDays()){
+            days.setText(detail.getDays() +"");
+        }
+        people.setText(detail.getPeople());
+        if(null != detail.getMoney()) {
+            money.setText(detail.getMoney() + "");
+        }
+        //img
+        //加载ViewPager
+        initViewPager();
+        //加载底部圆点
+        if(travels.getImgList().size() > 1){
+            initPoint();
+        }
     }
 
     private void getViews(){
@@ -140,10 +215,12 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
                 switch (item.getItemId()) {
                     case R.id.menu_update:
                         Intent intent = new Intent(TravelDetailActivity.this, UpdateTravelActivity.class);
+                        intent.putExtra("travels",travels);
                         startActivity(intent);
+                        finish();
                         break;
                     case R.id.menu_delete:
-
+                        deleteTravels();
                         break;
                 }
                 return true;
@@ -174,6 +251,7 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
             switch (v.getId()){
                 case R.id.travel_detail_iv_headImg:
                     Intent intent = new Intent(TravelDetailActivity.this, OtherUserInfoActivity.class);
+                    intent.putExtra("other", travels.getUser());
                     startActivity(intent);
                     break;
                 case R.id.iv_comment:
@@ -212,13 +290,10 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
         //根据ViewPager的item数量实例化数组
         ivPointArray = new ImageView[viewList.size()];
         //循环新建底部圆点ImageView，将生成的ImageView保存到数组中
-//        int size = note.getImgList().size();
-        //TODO ============
-        int size = 3;
-        for (int i = 0;i<size;i++){
+        int size = travels.getImgList().size();
+        for (int i = 0;i < size; i++){
             point = new ImageView(this);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(30,30);
-
             //第一个页面需要设置为选中状态，这里采用两张不同的图片
             if (i == 0){
                 point.setBackgroundResource(R.mipmap.ic_page_indicator_focused);
@@ -241,10 +316,8 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
      *  @Description: 加载图片
      */
     private void initViewPager() {
-
         viewList = new ArrayList<>();
-        //TODO ========================
-        for (int i = 0; i < 3; ++i) {
+        if(travels.getImgList().size() <= 0){
             ImageView imageView = new ImageView(this);
             Glide.with(getApplicationContext())
                     .asBitmap()
@@ -260,41 +333,20 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
 
             //将ImageView加入到集合中
             viewList.add(imageView);
+        }else{
+            for (int i = 0;i < travels.getImgList().size();i++){
+                //new ImageView并设置图片资源
+                ImageView imageView = new ImageView(this);
+                imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+                Glide.with(getApplicationContext())
+                        .asBitmap()
+                        .load("http://"+data.getIp()+":8080/ZhiLvProject/"+travels.getImgList().get(i).getPath())
+                        .into(imageView);
+
+                //将ImageView加入到集合中
+                viewList.add(imageView);
+            }
         }
-
-
-//        if(note.getImgList().size() <= 0){
-//            ImageView imageView = new ImageView(this);
-//            Glide.with(getApplicationContext())
-//                    .asBitmap()
-//                    .load(R.mipmap.default_bg)
-//                    .into(new SimpleTarget<Bitmap>() {
-//                        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-//                        @Override
-//                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-//                            Drawable drawable = new BitmapDrawable(resource);
-//                            imageView.setBackground(drawable);    //设置背景
-//                        }
-//                    });
-//
-//            //将ImageView加入到集合中
-//            viewList.add(imageView);
-//        }else{
-//            for (int i = 0;i < note.getImgList().size();i++){
-//                //new ImageView并设置图片资源
-//                ImageView imageView = new ImageView(this);
-//                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-//                Glide.with(getApplicationContext())
-//                        .asBitmap()
-//                        .load("http://"+ ip +":8080/MoJi/"+note.getImgList().get(i))
-//                        .into(imageView);
-//
-//                //将ImageView加入到集合中
-//                viewList.add(imageView);
-//            }
-//    }
-
-
         //View集合初始化好后，设置Adapter
         viewPager.setAdapter(new GuidePageAdapter(viewList));
         //设置滑动监听
@@ -310,9 +362,8 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
     @Override
     public void onPageSelected(int position) {
         //循环设置当前页的标记图
-//        int length = note.getImgList().size();
-        int length = 3;
-        for (int i = 0;i<length;i++){
+        int length = travels.getImgList().size();
+        for (int i = 0; i < length; i++){
             ivPointArray[position].setBackgroundResource(R.mipmap.ic_page_indicator_focused);
             if (position != i){
                 ivPointArray[i].setBackgroundResource(R.mipmap.ic_page_indicator);
@@ -337,5 +388,36 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
             }
         }
         return true;
+    }
+
+
+    private void deleteTravels(){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Message msg = Message.obtain();
+                    if(DetermineConnServer.isConnByHttp(TravelDetailActivity.this)) {
+                        URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/travels/delete?travelsId="+travels.getTravelsId() );
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                        String info = reader.readLine();
+                        if("OK".equals(info)){
+                            msg.what = 1002;
+                        }else{
+                            msg.obj = "删除失败";
+                        }
+                    }else {
+                        msg.obj = "未连接到服务器";
+                    }
+                    mHandler.sendMessage(msg);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 }

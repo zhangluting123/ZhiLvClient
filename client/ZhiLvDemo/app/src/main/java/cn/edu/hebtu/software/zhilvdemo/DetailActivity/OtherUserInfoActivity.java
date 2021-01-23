@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.ChannelPagerAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Adapter.StaggeredGridAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Data.User;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.Mine.TravelsMineFragment;
 import cn.edu.hebtu.software.zhilvdemo.R;
@@ -26,6 +27,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.mob.tools.RxMob;
 
 import java.io.BufferedReader;
@@ -44,7 +47,7 @@ public class OtherUserInfoActivity extends AppCompatActivity {
     private PagerSlidingTabStrip tabs;
     private List<Fragment> fragmentList;
     private String[] titles = {"游记"};
-
+    private ImageView userHead;
     private ImageView userSex;
     private TextView userName;
     private TextView userSign;
@@ -79,6 +82,10 @@ public class OtherUserInfoActivity extends AppCompatActivity {
         initTabsPager();
         getViews();
 
+        Glide.with(this).
+                load("http://"+data.getIp()+":8080/ZhiLvProject/"+other.getUserHead())
+                .apply(new RequestOptions().circleCrop())
+                .into(userHead);
         userName.setText(other.getUserName());
         userSign.setText(other.getSignature());
         if("girl".equals(other.getSex())){
@@ -86,22 +93,27 @@ public class OtherUserInfoActivity extends AppCompatActivity {
         }else{
             userSex.setImageResource(R.mipmap.home_boy);
         }
-        if(null != data.getUser().getUserId()){
+        if(null != data.getUser()){
             if(data.getUser().getUserId().equals(other.getUserId())){
                 btnAttention.setText("myself");
             }else {
                 checkFollow();
+
             }
         }
 
         btnAttention.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(null == data.getUser()){
+                    Toast.makeText(OtherUserInfoActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 String nowMsg = btnAttention.getText().toString().trim();
                 if(nowMsg.equals("+ 关注")){
                     follow();
                     btnAttention.setText("已关注");
-                }else{
+                }else if(nowMsg.equals("已关注")){
                     noFollow();
                     btnAttention.setText("+ 关注");
                 }
@@ -138,6 +150,7 @@ public class OtherUserInfoActivity extends AppCompatActivity {
 
 
     private void getViews(){
+        userHead = findViewById(R.id.mine_user_head);
         userSex = findViewById(R.id.mine_user_sex);
         userName = findViewById(R.id.mine_user_name);
         userSign = findViewById(R.id.mine_user_sign);

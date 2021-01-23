@@ -5,6 +5,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.StaggeredGridAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.Note;
 import cn.edu.hebtu.software.zhilvdemo.R;
 
 import android.content.Intent;
@@ -15,14 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TopicDetailActivity extends AppCompatActivity {
-    private List<String> mDatas;
+    private List<Note> mDatas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic_detail);
 
-        initData();
+//        initData();
 
         Intent intent = getIntent();
         String topic = intent.getStringExtra("topic");
@@ -44,7 +45,7 @@ public class TopicDetailActivity extends AppCompatActivity {
         adapter.setOnItemClickListener(new StaggeredGridAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                if(mDatas.get(position).contains("2")){
+                if(!mDatas.get(position).isFlag()){
                     Intent intent = new Intent(TopicDetailActivity.this, VideoDetailActivity.class);
                     startActivity(intent);
                 }else{
@@ -56,10 +57,4 @@ public class TopicDetailActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private void initData(){
-        mDatas = new ArrayList<>();
-        for(int i = 0; i < 15; ++i){
-            mDatas.add("topic--->" + i);
-        }
-    }
 }

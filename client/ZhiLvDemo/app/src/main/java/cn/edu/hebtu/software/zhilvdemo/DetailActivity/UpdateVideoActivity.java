@@ -77,7 +77,8 @@ public class UpdateVideoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_update_video);
 
         data = (MyApplication)getApplication();
-
+        data.setTopic(null);
+        data.setMoreDetail(null);
         getViews();
         registListener();
     }
@@ -311,8 +312,7 @@ public class UpdateVideoActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         if(null != data.getTopic()) {
-            topicText.setText(data.getTopic());
-            data.setTopic(null);
+            topicText.setText(data.getTopic().getTitle());
         }
         super.onResume();
     }

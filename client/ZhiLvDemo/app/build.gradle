@@ -83,5 +83,7 @@ dependencies {
     implementation 'cn.jzvd:jiaozivideoplayer:6.2.12'
     //图片裁剪
     implementation 'com.github.yalantis:ucrop:2.2.6'
+    //底部导航栏
+    implementation 'com.github.forvv231:EasyNavigation:1.0.3'
 
 }

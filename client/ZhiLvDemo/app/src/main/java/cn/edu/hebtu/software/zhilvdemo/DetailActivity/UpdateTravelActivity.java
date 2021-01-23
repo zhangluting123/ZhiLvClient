@@ -5,8 +5,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import cn.edu.hebtu.software.zhilvdemo.Data.Img;
+import cn.edu.hebtu.software.zhilvdemo.Data.MoreDetail;
+import cn.edu.hebtu.software.zhilvdemo.Data.Travels;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.UploadAndDownload.EditTravelsTask;
+import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.DensityUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.FileUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.FinalVariableUtil;
@@ -94,16 +99,52 @@ public class UpdateTravelActivity extends AppCompatActivity {
     private String mTempPhotoPath;
     private List<String> imgList = new ArrayList<>();
 
+    private Travels travels;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_travel);
 
         data = (MyApplication)getApplication();
+        data.setTopic(null);
+        data.setMoreDetail(null);
         i = 0;
         getViews();
         registListener();
+        initData();
 
+    }
+    private void initData(){
+        Intent intent = getIntent();
+        travels = intent.getParcelableExtra("travels");
+        title.setText(travels.getTitle());
+        locationText.setText(travels.getLocation());
+        if(null != travels.getTopic()) {
+            topicText.setText(travels.getTopic().getTitle());
+        }
+        route.setText(travels.getRoute());
+        scene.setText(travels.getScene());
+        ticket.setText(travels.getTicket());
+        hotel.setText(travels.getHotel());
+        tips.setText(travels.getTips());
+        //more detail
+        MoreDetail detail = travels.getDetail();
+        destination.setText(detail.getDestination());
+        traffic.setText(detail.getTraffic());
+        beginDate.setText(DateUtil.getDateStr(detail.getBeginDate()));
+        if(null != detail.getDays()) {
+            days.setText(detail.getDays() + "");
+        }
+        people.setText(detail.getPeople());
+        if(null != detail.getMoney()) {
+            money.setText(detail.getMoney() + "");
+        }
+        //img
+        RequestOptions options = new RequestOptions();
+        for(Img img: travels.getImgList()){
+            insertPhoto(options,"http://"+data.getIp()+":8080/ZhiLvProject/"+img.getPath());
+        }
     }
 
     private void getViews(){
@@ -159,7 +200,36 @@ public class UpdateTravelActivity extends AppCompatActivity {
             Intent intent = null;
             switch (v.getId()){
                 case R.id.update_travels_btnSubmit:
-
+                    Travels t = new Travels();
+                    t.setTravelsId(travels.getTravelsId());
+                    t.setUser(data.getUser());
+                    t.setHotel(hotel.getText().toString());
+                    t.setImgPathList(imgList);
+                    t.setLocation(locationText.getText().toString());
+                    t.setRoute(route.getText().toString());
+                    t.setScene(scene.getText().toString());
+                    t.setTicket(ticket.getText().toString());
+                    t.setTips(tips.getText().toString());
+                    t.setTitle(title.getText().toString());
+                    if(null != data.getTopic()){
+                        t.setTopic(data.getTopic());
+                    }else{
+                        t.setTopic(travels.getTopic());
+                    }
+                    MoreDetail moreDetail = new MoreDetail();
+                    moreDetail.setDestination(destination.getText().toString());
+                    moreDetail.setBeginDate(DateUtil.getDate(beginDate.getText().toString()));
+                    moreDetail.setTraffic(traffic.getText().toString());
+                    if(!"".equals(days.getText().toString())) {
+                        moreDetail.setDays(Integer.parseInt(days.getText().toString()));
+                    }
+                    moreDetail.setPeople(people.getText().toString());
+                    if(!"".equals(money.getText().toString())) {
+                        moreDetail.setMoney(Integer.parseInt(money.getText().toString()));
+                    }
+                    t.setDetail(moreDetail);
+                    EditTravelsTask task = new EditTravelsTask(UpdateTravelActivity.this, t);
+                    task.execute("http://"+data.getIp()+":8080/ZhiLvProject/audit/travels/add");
                     break;
                 case R.id.update_more_detail_et_beginDate:
                     initTimePicker();
@@ -357,7 +427,6 @@ public class UpdateTravelActivity extends AppCompatActivity {
         RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(DensityUtil.dip2px(this,110),DensityUtil.dip2px(this,110));
         layout.addView(relativeLayout,param);
         imgList.add(filePath);
-        //        Log.e("filepath=", filePath);
 
         //设置删除按钮的监听器
         deleteImg.setOnClickListener(new View.OnClickListener() {
@@ -419,8 +488,7 @@ public class UpdateTravelActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         if(null != data.getTopic()) {
-            topicText.setText(data.getTopic());
-            data.setTopic(null);
+            topicText.setText(data.getTopic().getTitle());
         }
         super.onResume();
 

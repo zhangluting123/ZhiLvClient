@@ -1,4 +1,20 @@
-package cn.edu.hebtu.software.zhilvdemo.Fragment;
+package cn.edu.hebtu.software.zhilvdemo.DetailActivity;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import cn.edu.hebtu.software.zhilvdemo.Data.MoreDetail;
+import cn.edu.hebtu.software.zhilvdemo.Data.Travels;
+import cn.edu.hebtu.software.zhilvdemo.R;
+import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.UploadAndDownload.UploadTravelsTask;
+import cn.edu.hebtu.software.zhilvdemo.Util.DensityUtil;
+import cn.edu.hebtu.software.zhilvdemo.Util.FileUtil;
+import cn.edu.hebtu.software.zhilvdemo.Util.FinalVariableUtil;
+import cn.edu.hebtu.software.zhilvdemo.Util.GetPhotoUtil;
+import cn.edu.hebtu.software.zhilvdemo.Util.PermissionUtil;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -23,6 +39,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -32,32 +49,15 @@ import com.yalantis.ucrop.UCropActivity;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import cn.edu.hebtu.software.zhilvdemo.DetailActivity.AddMoreDetailActivity;
-import cn.edu.hebtu.software.zhilvdemo.DetailActivity.AddVideoActivity;
-import cn.edu.hebtu.software.zhilvdemo.DetailActivity.SearchTopicActivity;
-import cn.edu.hebtu.software.zhilvdemo.R;
-import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
-import cn.edu.hebtu.software.zhilvdemo.Util.DensityUtil;
-import cn.edu.hebtu.software.zhilvdemo.Util.FileUtil;
-import cn.edu.hebtu.software.zhilvdemo.Util.FinalVariableUtil;
-import cn.edu.hebtu.software.zhilvdemo.Util.GetPhotoUtil;
-import cn.edu.hebtu.software.zhilvdemo.Util.PermissionUtil;
-
-import static android.app.Activity.RESULT_OK;
-
 /**
  * @ProjectName:    ZhiLv
  * @Description:    添加游记界面
  * @Author:         张璐婷
- * @CreateDate:     2020/12/14 19:46
+ * @CreateDate:     2021/1/23 12:00
  * @Version:        1.0
  */
-public class AddTravelsFragment extends Fragment {
+public class AddTravelsActivity extends AppCompatActivity {
+    private Toolbar toolbar;
     private Button btnVideo;
     private Button btnSubmit;
     private ImageButton uploadImage;
@@ -75,48 +75,47 @@ public class AddTravelsFragment extends Fragment {
 
     private PopupWindow popupWindow;
 
-    private View view;
     private View popupView;
     private Button btnTakePhoto;
     private Button btnChooseFromAlbum;
     private Button btnCancel;
     private int i; //图片个数
     private String mTempPhotoPath;
-    private List<String> imgList = new ArrayList<>();
+    private List<String> imgPathList= new ArrayList<>();
     private MyApplication data;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_add_travels, null);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_add_travels);
+
         i = 0;
 
         getViews();
         registListener();
 
-        data = (MyApplication)getActivity().getApplicationContext();
+        data = (MyApplication)getApplication();
         locationText.setText(data.getProvince() + "·" + data.getCity());
-
-
-        return view;
+        data.setTopic(null);
+        data.setMoreDetail(null);
     }
 
-
     private void getViews(){
-        btnVideo = view.findViewById(R.id.add_travels_btnVideo);
-        btnSubmit = view.findViewById(R.id.add_travels_btnSubmit);
-        uploadImage = view.findViewById(R.id.uploadImage);
-        btnMoreDetail = view.findViewById(R.id.add_btn_more_detail);
-        title = view.findViewById(R.id.add_travels_et_title);
-        route = view.findViewById(R.id.add_travels_et_route);
-        scene = view.findViewById(R.id.add_travels_et_scene);
-        ticket = view.findViewById(R.id.add_travels_et_ticket);
-        hotel = view.findViewById(R.id.add_travels_et_hotel);
-        tips = view.findViewById(R.id.add_travels_et_tips);
-        topic = view.findViewById(R.id.addTravels_rl_topic);
-        location = view.findViewById(R.id.addTravels_rl_location);
-        topicText = view.findViewById(R.id.add_travels_tv_topic);
-        locationText = view.findViewById(R.id.add_travels_tv_location);
+        toolbar = findViewById(R.id.toolbar);
+        btnVideo = findViewById(R.id.add_travels_btnVideo);
+        btnSubmit = findViewById(R.id.add_travels_btnSubmit);
+        uploadImage = findViewById(R.id.uploadImage);
+        btnMoreDetail = findViewById(R.id.add_btn_more_detail);
+        title = findViewById(R.id.add_travels_et_title);
+        route = findViewById(R.id.add_travels_et_route);
+        scene =findViewById(R.id.add_travels_et_scene);
+        ticket = findViewById(R.id.add_travels_et_ticket);
+        hotel = findViewById(R.id.add_travels_et_hotel);
+        tips = findViewById(R.id.add_travels_et_tips);
+        topic = findViewById(R.id.addTravels_rl_topic);
+        location =findViewById(R.id.addTravels_rl_location);
+        topicText = findViewById(R.id.add_travels_tv_topic);
+        locationText = findViewById(R.id.add_travels_tv_location);
         LayoutInflater inflater = getLayoutInflater();
         popupView = inflater.inflate(R.layout.popup_image_layout, null);
         btnTakePhoto = popupView.findViewById(R.id.take_photo);
@@ -135,6 +134,12 @@ public class AddTravelsFragment extends Fragment {
         btnTakePhoto.setOnClickListener(listener);
         btnChooseFromAlbum.setOnClickListener(listener);
         btnCancel.setOnClickListener(listener);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
 
@@ -147,31 +152,45 @@ public class AddTravelsFragment extends Fragment {
                     showPopupWindow();
                     break;
                 case R.id.add_travels_btnVideo:
-                    intent = new Intent(getActivity().getApplicationContext(), AddVideoActivity.class);
+                    intent = new Intent(getApplicationContext(), AddVideoActivity.class);
                     startActivity(intent);
                     break;
                 case R.id.add_travels_btnSubmit:
+                    Travels travels = new Travels();
+                    travels.setUser(data.getUser());
+                    travels.setHotel(hotel.getText().toString());
+                    travels.setImgPathList(imgPathList);
+                    travels.setLocation(locationText.getText().toString());
+                    travels.setRoute(route.getText().toString());
+                    travels.setScene(scene.getText().toString());
+                    travels.setTicket(ticket.getText().toString());
+                    travels.setTips(tips.getText().toString());
+                    travels.setTitle(title.getText().toString());
+                    travels.setTopic(data.getTopic());
+                    travels.setDetail(data.getMoreDetail());
+                    UploadTravelsTask task = new UploadTravelsTask(AddTravelsActivity.this, travels);
+                    task.execute("http://"+data.getIp()+":8080/ZhiLvProject/audit/travels/add");
                     break;
                 case R.id.add_btn_more_detail:
-                    intent = new Intent(getActivity().getApplicationContext(), AddMoreDetailActivity.class);
+                    intent = new Intent(getApplicationContext(), AddMoreDetailActivity.class);
                     startActivity(intent);
                     break;
                 case R.id.addTravels_rl_topic:
-                    intent = new Intent(getActivity().getApplicationContext(), SearchTopicActivity.class);
+                    intent = new Intent(getApplicationContext(), SearchTopicActivity.class);
                     startActivity(intent);
                     break;
                 case R.id.addTravels_rl_location:
                     break;
                 case R.id.take_photo:
-                    if(PermissionUtil.openCameraPermission(getActivity())){
-                        mTempPhotoPath = GetPhotoUtil.takePhoto(getActivity());
+                    if(PermissionUtil.openCameraPermission(AddTravelsActivity.this)){
+                        mTempPhotoPath = GetPhotoUtil.takePhoto(AddTravelsActivity.this);
                     }
                     popupWindow.dismiss();
                     break;
 
                 case R.id.choose_from_album:
-                    if(PermissionUtil.openSDCardPermission(getActivity())){
-                        GetPhotoUtil.choosePhoto(getActivity());
+                    if(PermissionUtil.openSDCardPermission(AddTravelsActivity.this)){
+                        GetPhotoUtil.choosePhoto(AddTravelsActivity.this);
                     }
                     popupWindow.dismiss();
                     break;
@@ -185,11 +204,11 @@ public class AddTravelsFragment extends Fragment {
 
 
     public void showPopupWindow(){
-        popupWindow = new PopupWindow(getActivity());
+        popupWindow = new PopupWindow(this);
         popupWindow.setContentView(popupView);
         popupWindow.setWidth(LinearLayout.LayoutParams.MATCH_PARENT);
         popupWindow.setHeight(LinearLayout.LayoutParams.WRAP_CONTENT);
-        HorizontalScrollView parent = view.findViewById(R.id.parent);
+        HorizontalScrollView parent = findViewById(R.id.parent);
         popupWindow.showAtLocation(parent, Gravity.BOTTOM,0,0);
     }
 
@@ -198,16 +217,16 @@ public class AddTravelsFragment extends Fragment {
         switch (requestCode) {
             case PermissionUtil.OPEN_CAMEAR_REQUEST_CODE:   //拍照权限申请返回
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED ) {
-                    mTempPhotoPath = GetPhotoUtil.takePhoto(getActivity());
+                    mTempPhotoPath = GetPhotoUtil.takePhoto(AddTravelsActivity.this);
                 }else{
-                    Toast.makeText(getActivity().getApplicationContext(), "相机权限和读写SD卡申请失败", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "相机权限和读写SD卡申请失败", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case PermissionUtil.EXTERNAL_STORAGE_REQUEST_CODE:   //相册选择照片权限申请返回
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED ) {
-                    GetPhotoUtil.choosePhoto(getActivity());
+                    GetPhotoUtil.choosePhoto(AddTravelsActivity.this);
                 }else{
-                    Toast.makeText(getActivity().getApplicationContext(), "读写SD卡权限申请失败", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "读写SD卡权限申请失败", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
@@ -220,16 +239,16 @@ public class AddTravelsFragment extends Fragment {
             switch (requestCode) {
                 case FinalVariableUtil.RC_CHOOSE_PHOTO:
                     Uri uri = data.getData();
-                    String southFilePath = FileUtil.getFilePathByUri(getActivity(), uri);
-                    startUCrop(getActivity(),southFilePath,UCrop.REQUEST_CROP,16,9);
+                    String southFilePath = FileUtil.getFilePathByUri(this, uri);
+                    startUCrop(this,southFilePath, UCrop.REQUEST_CROP,16,9);
                     break;
                 case FinalVariableUtil.RC_TAKE_PHOTO:
-                    startUCrop(getActivity(),mTempPhotoPath,UCrop.REQUEST_CROP,16,9);
+                    startUCrop(this,mTempPhotoPath,UCrop.REQUEST_CROP,16,9);
                     break;
                 case UCrop.REQUEST_CROP: {
                     // 裁剪照片
                     final Uri croppedUri = UCrop.getOutput(data);
-                    String filePath = FileUtil.getFilePathByUri(getActivity(), croppedUri);
+                    String filePath = FileUtil.getFilePathByUri(this, croppedUri);
                     if (!TextUtils.isEmpty(filePath)) {
                         RequestOptions requestOptions1 = new RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE);
                         //将照片显示在 ivImage上
@@ -248,27 +267,27 @@ public class AddTravelsFragment extends Fragment {
     }
 
     private void insertPhoto(RequestOptions requestOptions, final String filePath){
-        final LinearLayout layout = view.findViewById(R.id.layout_img);
-        final RelativeLayout relativeLayout = new RelativeLayout(getActivity());
+        final LinearLayout layout = findViewById(R.id.layout_img);
+        final RelativeLayout relativeLayout = new RelativeLayout(this);
 
-        ImageView img = new ImageView(getActivity());
+        ImageView img = new ImageView(this);
         img.setId(i);
         Glide.with(this).load(filePath).apply(requestOptions).into(img);
-        RelativeLayout.LayoutParams param1 = new RelativeLayout.LayoutParams(DensityUtil.dip2px(getActivity().getApplicationContext(),100),DensityUtil.dip2px(getActivity().getApplicationContext(),100));
+        RelativeLayout.LayoutParams param1 = new RelativeLayout.LayoutParams(DensityUtil.dip2px(getApplicationContext(),100),DensityUtil.dip2px(getApplicationContext(),100));
         param1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         relativeLayout.addView(img,param1);
 
-        ImageButton deleteImg = new ImageButton(getActivity());
+        ImageButton deleteImg = new ImageButton(this);
         deleteImg.setId(i);
         deleteImg.setBackgroundResource(R.mipmap.add_travels_deleteimg);
         RelativeLayout.LayoutParams param2 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         param2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         relativeLayout.addView(deleteImg,param2);
 
-        RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(DensityUtil.dip2px(getActivity().getApplicationContext(),110),DensityUtil.dip2px(getActivity().getApplicationContext(),110));
+        RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(DensityUtil.dip2px(getApplicationContext(),110),DensityUtil.dip2px(getApplicationContext(),110));
         layout.addView(relativeLayout,param);
-        imgList.add(filePath);
-        //        Log.e("filepath=", filePath);
+        //添加图片
+        imgPathList.add(filePath);
 
         //设置删除按钮的监听器
         deleteImg.setOnClickListener(new View.OnClickListener() {
@@ -276,7 +295,7 @@ public class AddTravelsFragment extends Fragment {
             public void onClick(View v) {
                 v.getId();
                 layout.removeView(relativeLayout);
-                imgList.remove(filePath);
+                imgPathList.remove(filePath);
             }
         });
         i++;
@@ -292,7 +311,7 @@ public class AddTravelsFragment extends Fragment {
      * @return
      */
     public static void startUCrop(Activity activity, String sourceFilePath,
-                                    int requestCode, float aspectRatioX, float aspectRatioY) {
+                                  int requestCode, float aspectRatioX, float aspectRatioY) {
         Uri sourceUri = Uri.fromFile(new File(sourceFilePath));
         File outDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         if (!outDir.exists()) {
@@ -328,8 +347,7 @@ public class AddTravelsFragment extends Fragment {
     @Override
     public void onResume() {
         if(null != data.getTopic()) {
-            topicText.setText(data.getTopic());
-            data.setTopic(null);
+            topicText.setText(data.getTopic().getTitle());
         }
         super.onResume();
 

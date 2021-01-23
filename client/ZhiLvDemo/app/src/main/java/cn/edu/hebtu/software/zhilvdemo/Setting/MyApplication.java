@@ -5,6 +5,8 @@ import android.app.Application;
 import com.baidu.mapapi.SDKInitializer;
 import com.mob.MobSDK;
 
+import cn.edu.hebtu.software.zhilvdemo.Data.MoreDetail;
+import cn.edu.hebtu.software.zhilvdemo.Data.Topic;
 import cn.edu.hebtu.software.zhilvdemo.Data.User;
 
 /**
@@ -15,16 +17,17 @@ import cn.edu.hebtu.software.zhilvdemo.Data.User;
  * @Version:        1.0
  */
 public class MyApplication extends Application {
-    private String topic;
+    private Topic topic;
     private String city;
     private String province;
     private String addrName;
     private double latitude;
     private double longitude;
     private String searchText;
-    private String searchCity;//
+    private String searchCity;
     private double searchLatitude;
     private double searchLongitude;
+    private MoreDetail moreDetail;
 
     private String ip;
     private User user;
@@ -35,6 +38,7 @@ public class MyApplication extends Application {
         //百度地图初始化
         SDKInitializer.initialize(getApplicationContext());
         MobSDK.init(this,"320ceaf58e03a","637027746d83b354d031bd8f6c05903d");
+
     }
 
     public String getIp() {
@@ -53,11 +57,11 @@ public class MyApplication extends Application {
         this.user = user;
     }
 
-    public String getTopic() {
+    public Topic getTopic() {
         return topic;
     }
 
-    public void setTopic(String topic) {
+    public void setTopic(Topic topic) {
         this.topic = topic;
     }
 
@@ -131,5 +135,13 @@ public class MyApplication extends Application {
 
     public void setSearchLongitude(double searchLongitude) {
         this.searchLongitude = searchLongitude;
+    }
+
+    public MoreDetail getMoreDetail() {
+        return moreDetail;
+    }
+
+    public void setMoreDetail(MoreDetail moreDetail) {
+        this.moreDetail = moreDetail;
     }
 }

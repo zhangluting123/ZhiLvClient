@@ -17,6 +17,7 @@ import java.util.List;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.StaggeredGridAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.Note;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.TravelDetailActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.VideoDetailActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
@@ -31,7 +32,7 @@ import cn.edu.hebtu.software.zhilvdemo.R;
 public class GoodMineFragment extends Fragment {
     private View view;
     private RecyclerView mRecyclerView;
-    private List<String> mDatas = new ArrayList<>();
+    private List<Note> mDatas = new ArrayList<>();
     private String mTitle = "Good";
 
     @Override
@@ -39,7 +40,7 @@ public class GoodMineFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_good_mine, container, false);
         mRecyclerView = view.findViewById(R.id.good_mine_recycler);
 
-        initDatas();
+//        initDatas();
         showStagger();
         return view;
     }
@@ -59,7 +60,7 @@ public class GoodMineFragment extends Fragment {
         adapter.setOnItemClickListener(new StaggeredGridAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                if(mDatas.get(position).contains("2")){
+                if(!mDatas.get(position).isFlag()){
                     Intent intent = new Intent(getActivity(), VideoDetailActivity.class);
                     startActivity(intent);
                 }else{
@@ -72,19 +73,5 @@ public class GoodMineFragment extends Fragment {
 
     }
 
-    private void initDatas(){
-        for (int i = 0; i < 20; i++)
-        {
-            mDatas.add(mTitle + " -> " + i);
-        }
-    }
-
-    private List<String> getData(){
-        for (int i = 0; i < 3; i++)
-        {
-            mDatas.add(i," -> ADD" + i);
-        }
-        return mDatas;
-    }
 
 }

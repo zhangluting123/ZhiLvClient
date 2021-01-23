@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import java.util.Date;
 
+import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
+
 
 /**
  * @ProjectName:    ZhiLv
@@ -53,6 +55,7 @@ public class User implements Parcelable {
         userName = in.readString();
         sex = in.readString();
         signature = in.readString();
+        birth = new Date(in.readLong());
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -147,6 +150,7 @@ public class User implements Parcelable {
         dest.writeString(userName);
         dest.writeString(sex);
         dest.writeString(signature);
+        dest.writeLong(birth.getTime());
     }
 
 
