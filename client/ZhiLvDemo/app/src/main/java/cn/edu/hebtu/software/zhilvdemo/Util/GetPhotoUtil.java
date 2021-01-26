@@ -2,6 +2,7 @@ package cn.edu.hebtu.software.zhilvdemo.Util;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -10,6 +11,7 @@ import android.util.Log;
 import com.zhy.base.fileprovider.FileProvider7;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -56,4 +58,28 @@ public class GetPhotoUtil {
 
         return mTempPhotoPath;
     }
+
+    public static String bitmapToImg(Bitmap bitmap){
+        File fileDir = new File(Environment.getExternalStorageDirectory() + File.separator + "videoImg" + File.separator);
+        if (!fileDir.exists()) {
+            fileDir.mkdirs();
+        }
+        Date date = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+        String fileName = format.format(date) + ".jpg";
+        File file = new File(fileDir,fileName);
+        String filePath = file.getAbsolutePath();
+        Log.e("图片路径", filePath);
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return filePath;
+    }
+
+
 }

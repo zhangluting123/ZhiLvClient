@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import cn.edu.hebtu.software.zhilvdemo.Data.Note;
 import cn.edu.hebtu.software.zhilvdemo.Data.Travels;
+import cn.edu.hebtu.software.zhilvdemo.Data.Video;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.OtherUserInfoActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
@@ -60,34 +61,33 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        RequestOptions options = new RequestOptions();
         if(holder instanceof MyViewHolderTravels){
             Travels travels = mDatas.get(position).getTravels();
             ((MyViewHolderTravels) holder).travelTitle.setText(travels.getTitle());
-            RequestOptions options = new RequestOptions();
             if(travels.getImgList().size() > 0){
                 Glide.with(context).
                         load("http://"+data.getIp()+":8080/ZhiLvProject/"+travels.getImgList().get(0).getPath())
                         .apply(options)
                         .into(((MyViewHolderTravels)holder).travelImg);
             }
-
             ((MyViewHolderTravels) holder).userName.setText(travels.getUser().getUserName());
             Glide.with(context).
                     load("http://"+data.getIp()+":8080/ZhiLvProject/"+travels.getUser().getUserHead())
-                    .apply(options)
+                    .apply(options.circleCrop())
                     .into(((MyViewHolderTravels)holder).userHead);
         }else{
+            Video video = mDatas.get(position).getVideo();
             ((MyViewHolderVideo) holder).videoTitle.setText(mDatas.get(position).getVideo().getTitle());
-
-//            Bitmap bitmap = getVideoThumbnail("http://localhost:8080/MoJi/video/test-video.mp4");
-//            ViewGroup.LayoutParams params = ((MyViewHolderVideo) holder).video.getLayoutParams();
-//            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-//            params.height = (int) (bitmap.getHeight()*0.5);
-//            ((MyViewHolderVideo) holder).video.setLayoutParams(params);
-//            if(null != bitmap) {
-//                ((MyViewHolderVideo) holder).video.setImageBitmap(bitmap);
-//            }
-            ((MyViewHolderVideo) holder).video.setImageResource(R.mipmap.img_video_default);
+            Glide.with(context).
+                    load("http://"+data.getIp()+":8080/ZhiLvProject/"+video.getImg())
+                    .apply(options)
+                    .into(((MyViewHolderVideo)holder).video);
+            ((MyViewHolderVideo) holder).userName.setText(video.getUser().getUserName());
+            Glide.with(context).
+                    load("http://"+data.getIp()+":8080/ZhiLvProject/"+video.getUser().getUserHead())
+                    .apply(options.circleCrop())
+                    .into(((MyViewHolderVideo)holder).userHead);
         }
 
 
@@ -156,7 +156,7 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, OtherUserInfoActivity.class);
-//                    intent.putExtra("other", mDatas.get(getLayoutPosition()).getVideo().getUser());
+                    intent.putExtra("other", mDatas.get(getLayoutPosition()).getVideo().getUser());
                     context.startActivity(intent);
                 }
             });

@@ -17,6 +17,10 @@ import java.io.InputStream;
  */
 public class AssetsUtil {
 
+    //将assets目录文件放到file文件夹中
+//        AssetsUtil.copyAssetsDB(this);// "//data//data//cn.edu.hebtu.software.zhilvdemo//files"
+
+
     /**
      * 将assets资产目录下的文件拷贝到系统目录下
      */

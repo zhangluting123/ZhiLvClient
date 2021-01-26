@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.sql.Time;
+import java.util.Date;
 
 /**
  * @ProjectName:    ZhiLv
@@ -13,28 +14,38 @@ import java.sql.Time;
  * @Version:        1.0
  */
 public class Video implements Parcelable {
-    private String videoId;//id
-    private String path;//路径
-    private String title;//标题
-    private String content;//内容
-    private String duration;//时长
-    private String size;//大小
-    private String uploadTime;//上传时间
+    private Integer videoId;
+    private String path;
+    private String img;
+    private String title;
+    private String content;
+    private Topic topic;
+    private String location;
+    private String duration;
+    private String size;
+    private Date uploadTime;
+    private MoreDetail detail;
+    private User user;
 
-//    private User user;//用户信息
-
-    public Video() {
-    }
+    public Video(){}
 
     protected Video(Parcel in) {
-        videoId = in.readString();
+        if (in.readByte() == 0) {
+            videoId = null;
+        } else {
+            videoId = in.readInt();
+        }
         path = in.readString();
+        img = in.readString();
         title = in.readString();
         content = in.readString();
-        duration = in.readString();
+        topic = in.readParcelable(Topic.class.getClassLoader());
+        location = in.readString();
         size = in.readString();
-        uploadTime = in.readString();
-//        user = in.readParcelable(User.class.getClassLoader());
+        detail = in.readParcelable(MoreDetail.class.getClassLoader());
+        user = in.readParcelable(User.class.getClassLoader());
+        duration = in.readString();
+        uploadTime = new Date(in.readLong());
     }
 
     public static final Creator<Video> CREATOR = new Creator<Video>() {
@@ -49,71 +60,78 @@ public class Video implements Parcelable {
         }
     };
 
-    public String getVideoId() {
+    public Integer getVideoId() {
         return videoId;
     }
-
-    public void setVideoId(String videoId) {
+    public void setVideoId(Integer videoId) {
         this.videoId = videoId;
     }
-
     public String getPath() {
         return path;
     }
-
     public void setPath(String path) {
         this.path = path;
     }
-
+    public String getImg() {
+        return img;
+    }
+    public void setImg(String img) {
+        this.img = img;
+    }
     public String getTitle() {
         return title;
     }
-
     public void setTitle(String title) {
         this.title = title;
     }
-
     public String getContent() {
         return content;
     }
-
     public void setContent(String content) {
         this.content = content;
     }
-
+    public Topic getTopic() {
+        return topic;
+    }
+    public void setTopic(Topic topic) {
+        this.topic = topic;
+    }
+    public String getLocation() {
+        return location;
+    }
+    public void setLocation(String location) {
+        this.location = location;
+    }
     public String getDuration() {
         return duration;
     }
-
     public void setDuration(String duration) {
         this.duration = duration;
     }
-
     public String getSize() {
         return size;
     }
-
     public void setSize(String size) {
         this.size = size;
     }
-
-    public String getUploadTime() {
+    public Date getUploadTime() {
         return uploadTime;
     }
-
-    public void setUploadTime(String uploadTime) {
+    public void setUploadTime(Date uploadTime) {
         this.uploadTime = uploadTime;
     }
-
-
-
-//    public User getUser() {
-//        return user;
-//    }
-//
-//    public void setUser(User user) {
-//        this.user = user;
-//    }
+    public MoreDetail getDetail() {
+        return detail;
+    }
+    public void setDetail(MoreDetail detail) {
+        this.detail = detail;
+    }
+    public User getUser() {
+        return user;
+    }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     @Override
     public int describeContents() {
@@ -122,14 +140,22 @@ public class Video implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(videoId);
+        if (videoId == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeInt(videoId);
+        }
         dest.writeString(path);
+        dest.writeString(img);
         dest.writeString(title);
         dest.writeString(content);
-        dest.writeString(duration);
+        dest.writeParcelable(topic, flags);
+        dest.writeString(location);
         dest.writeString(size);
-        dest.writeString(uploadTime);
-
-//        dest.writeParcelable(user, flags);
+        dest.writeParcelable(detail, flags);
+        dest.writeParcelable(user, flags);
+        dest.writeLong(uploadTime.getTime());
+        dest.writeString(duration);
     }
 }

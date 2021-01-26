@@ -8,6 +8,8 @@ import androidx.appcompat.widget.Toolbar;
 import cn.edu.hebtu.software.zhilvdemo.Data.Video;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.UploadAndDownload.UploadVideoTask;
+import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.FileUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.FinalVariableUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.GetPhotoUtil;
@@ -32,6 +34,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Date;
 
 
 public class AddVideoActivity extends AppCompatActivity {
@@ -102,6 +106,18 @@ public class AddVideoActivity extends AppCompatActivity {
             Intent intent = null;
             switch (v.getId()){
                 case R.id.add_video_btnSubmit:
+                    if(null == video.getPath()){
+                        Toast.makeText(AddVideoActivity.this, "请选择视频",Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    video.setUser(data.getUser());
+                    video.setLocation(videoLocationText.getText().toString());
+                    video.setTitle(videoTitle.getText().toString());
+                    video.setContent(videoContent.getText().toString());
+                    video.setTopic(data.getTopic());
+                    video.setDetail(data.getMoreDetail());
+                    UploadVideoTask task = new UploadVideoTask(AddVideoActivity.this, video);
+                    task.execute("http://"+data.getIp()+":8080/ZhiLvProject/audit/video/add");
                     break;
                 case R.id.add_video_bitmap:
                     if(PermissionUtil.openSDCardPermission(AddVideoActivity.this)){
@@ -140,8 +156,7 @@ public class AddVideoActivity extends AppCompatActivity {
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 // 视频ID:MediaStore.Audio.Media._ID
-                int videoId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
-                video.setVideoId(videoId+"");
+//                int videoId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
                 // 视频名称：MediaStore.Audio.Media.TITLE
                 String videoTitle = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE));
                 video.setTitle(videoTitle);
@@ -149,7 +164,7 @@ public class AddVideoActivity extends AppCompatActivity {
                 String videoPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
                 video.setPath(videoPath);
                 // 视频时长（默认ms）：MediaStore.Audio.Media.DURATION
-                int duration_ms = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));
+                long duration_ms = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));
                 int duration_s = (int)Math.floor(duration_ms / 1000);
                 String ds = duration_s + "";
                 if (duration_s < 10){
@@ -165,8 +180,7 @@ public class AddVideoActivity extends AppCompatActivity {
                 if (duration_h < 10){
                     dh = "0" + duration_h;
                 }
-                String videoDuration = dh + ":" + dm + ":" + ds;
-                video.setDuration(videoDuration);
+                video.setDuration(dh + ":" + dm + ":" + ds);
                 // 视频大小（默认Byte）：MediaStore.Audio.Media.SIZE
                 long size_byte = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));
                 double size_MB = (size_byte * 1.0) / (1024 * 1024);
@@ -177,6 +191,7 @@ public class AddVideoActivity extends AppCompatActivity {
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(this,Uri.parse(videoPath));
                 bitmap = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                video.setImg(GetPhotoUtil.bitmapToImg(bitmap));
             }
         }
     }
@@ -206,7 +221,6 @@ public class AddVideoActivity extends AppCompatActivity {
                         getVideoData(uri);
                         videoImg.setScaleType(ImageView.ScaleType.CENTER_CROP);
                         videoImg.setImageBitmap(bitmap);
-                        Log.e("video","ID：" + video.getVideoId());
                         Log.e("video", "标题：" + video.getTitle());
                         Log.e("video", "路径：" + video.getPath());
                         Log.e("video", "时长：" + video.getDuration());

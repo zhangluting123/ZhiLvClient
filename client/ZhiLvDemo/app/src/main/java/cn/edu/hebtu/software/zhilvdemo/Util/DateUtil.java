@@ -12,8 +12,18 @@ import java.util.Date;
  * @Version:        1.0
  */
 public class DateUtil {
+    private static SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm:ss");
     private static SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd");
     private static SimpleDateFormat formatDateTime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+    public static Date getTime(String str) {
+        try {
+            return formatTime.parse(str);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static Date getDate(String str){
         try {
@@ -31,6 +41,10 @@ public class DateUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String getTimeStr(Date date) {
+        return formatTime.format(date);
     }
 
     public static String getDateStr(Date date){

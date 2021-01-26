@@ -80,6 +80,8 @@ public class UploadTravelsTask extends AsyncTask<String, Void, String> {
                 if(null != detail.getMoney()){
                     builder.addFormDataPart("money", detail.getMoney()+"");
                 }
+            }else{
+                builder.addFormDataPart("destination", "北京");
             }
 
             //传图片

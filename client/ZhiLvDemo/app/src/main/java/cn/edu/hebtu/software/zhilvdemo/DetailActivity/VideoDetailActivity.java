@@ -1,24 +1,34 @@
 package cn.edu.hebtu.software.zhilvdemo.DetailActivity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import cn.edu.hebtu.software.zhilvdemo.Data.MoreDetail;
+import cn.edu.hebtu.software.zhilvdemo.Data.Video;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
 import cn.edu.hebtu.software.zhilvdemo.Util.AssetsUtil;
+import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
+import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
 import cn.edu.hebtu.software.zhilvdemo.ViewCustom.InnerScrollListView;
 import cn.jzvd.JZVideoPlayer;
 import cn.jzvd.JZVideoPlayerStandard;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.icu.text.CaseMap;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -28,6 +38,18 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class VideoDetailActivity extends AppCompatActivity {
     private Toolbar toolbar;
@@ -63,7 +85,22 @@ public class VideoDetailActivity extends AppCompatActivity {
     private Boolean isPlayResume ;
 
     private MyApplication data;
+    private Video video;
 
+    @SuppressLint("HandlerLeak")
+    private final Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what){
+                case 1001:
+                    Toast.makeText(getApplicationContext(), (CharSequence)msg.obj, Toast.LENGTH_SHORT).show();
+                    break;
+                case 1002:
+                    finish();
+                    break;
+            }
+        }
+    };
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -75,47 +112,50 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         getViews();
         registListener();
-        addMenu();
+        if(null != data.getUser()){
+            addMenu();
+        }
+        initData();
 
-        //将assets目录文件放到file文件夹中
-        AssetsUtil.copyAssetsDB(this);// "//data//data//cn.edu.hebtu.software.zhilvdemo//files"
 
+    }
+
+    private void initData(){
+        Intent intent = getIntent();
+        video = intent.getParcelableExtra("video");
+        RequestOptions options = new RequestOptions().circleCrop();
+        Glide.with(this).load("http://"+data.getIp()+":8080/ZhiLvProject/"+video.getUser().getUserHead()).apply(options).into(userHeadImg);
+        userName.setText(video.getUser().getUserName());
+        videoTitle.setText(video.getTitle());
+        videoContent.setText(video.getContent());
+        videoLocation.setText(video.getLocation());
+        if(null != video.getTopic()) {
+            videoTopic.setText("#"+video.getTopic().getTitle()+"#");
+        }
+        //more detail
+        MoreDetail detail = video.getDetail();
+        destination.setText(detail.getDestination());
+        traffic.setText(detail.getTraffic());
+        beginDate.setText(DateUtil.getDateStr(detail.getBeginDate()));
+        if(null != detail.getDays()){
+            days.setText(detail.getDays() +"");
+        }
+        people.setText(detail.getPeople());
+        if(null != detail.getMoney()) {
+            money.setText(detail.getMoney() + "");
+        }
+        //视频
         //解决退出后仍播放问题
         isPlayResume = true;
         //点击全屏实现横屏
         JZVideoPlayerStandard.FULLSCREEN_ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-        videoPlayer.setUp("//data//data//cn.edu.hebtu.software.zhilvdemo//files//test-video.mp4",
+        videoPlayer.setUp("http://"+data.getIp()+":8080/ZhiLvProject/"+video.getPath(),
                 JZVideoPlayerStandard.SCREEN_WINDOW_NORMAL,
                 "");
-        videoPlayer.thumbImageView.setImageBitmap(getVideoThumbnail(null));
+//        videoPlayer.thumbImageView.setImageBitma();
         //实现重力感应下横屏切换
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorEventListener = new JZVideoPlayer.JZAutoFullscreenListener();
-    }
-
-
-    // 获取本地视频第一帧图片
-    public Bitmap getVideoThumbnail(String url) {
-        Bitmap bitmap = null;
-        //MediaMetadataRetriever 是android中定义好的一个类，提供了统一
-        //的接口，用于从输入的媒体文件中取得帧和元数据；
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        try {
-            //根据文件路径获取缩略图
-            retriever.setDataSource("//data//data//cn.edu.hebtu.software.zhilvdemo//files//test-video.mp4");
-            //获得第一帧原尺寸图片
-            bitmap = retriever.getFrameAtTime();
-        } catch (IllegalArgumentException e) {
-            Log.e("getVideoThumbnail", "catch");
-            e.printStackTrace();
-        } finally {
-            retriever.release();
-        }
-// 生成视频缩略图
-//        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-//        retriever.setDataSource(this, Uri.parse("//data//data//cn.edu.hebtu.software.zhilvdemo//files//test-video.mp4"));
-//        bitmap = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
-        return bitmap;
     }
 
     private void getViews(){
@@ -155,10 +195,11 @@ public class VideoDetailActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.menu_update:
                         Intent intent = new Intent(VideoDetailActivity.this, UpdateVideoActivity.class);
+                        intent.putExtra("video", video);
                         startActivity(intent);
                         break;
                     case R.id.menu_delete:
-
+                        deleteVideo();
                         break;
                 }
                 return true;
@@ -217,6 +258,36 @@ public class VideoDetailActivity extends AppCompatActivity {
                     break;
             }
         }
+    }
+
+    private void deleteVideo(){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Message msg = Message.obtain();
+                    if(DetermineConnServer.isConnByHttp(VideoDetailActivity.this)) {
+                        URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/video/delete?videoId="+video.getVideoId() );
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                        String info = reader.readLine();
+                        if("OK".equals(info)){
+                            msg.what = 1002;
+                        }else{
+                            msg.obj = "删除失败";
+                        }
+                    }else {
+                        msg.obj = "未连接到服务器";
+                    }
+                    mHandler.sendMessage(msg);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     @Override

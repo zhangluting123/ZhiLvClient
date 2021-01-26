@@ -8,7 +8,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.GuidePageAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Data.MoreDetail;
-import cn.edu.hebtu.software.zhilvdemo.Data.Note;
 import cn.edu.hebtu.software.zhilvdemo.Data.Travels;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;

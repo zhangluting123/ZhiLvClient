@@ -3,9 +3,14 @@ package cn.edu.hebtu.software.zhilvdemo.DetailActivity;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import cn.edu.hebtu.software.zhilvdemo.Adapter.StaggeredGridAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.MoreDetail;
 import cn.edu.hebtu.software.zhilvdemo.Data.Video;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.UploadAndDownload.EditVideoTask;
+import cn.edu.hebtu.software.zhilvdemo.UploadAndDownload.UploadVideoTask;
+import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.DensityUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.FileUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.FinalVariableUtil;
@@ -36,6 +41,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bigkoo.pickerview.TimePickerView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -70,7 +77,7 @@ public class UpdateVideoActivity extends AppCompatActivity {
     private TimePickerView pvTime; //时间选择器
     private MyApplication data;
     private Video video = new Video();
-
+    private Video beforeVideo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +88,34 @@ public class UpdateVideoActivity extends AppCompatActivity {
         data.setMoreDetail(null);
         getViews();
         registListener();
+        initData();
+    }
+
+    private void initData(){
+        Intent intent = getIntent();
+        beforeVideo = intent.getParcelableExtra("video");
+        videoTitle.setText(beforeVideo.getTitle());
+        videoContent.setText(beforeVideo.getContent());
+        locationText.setText(beforeVideo.getLocation());
+        if(null != beforeVideo.getTopic()) {
+            topicText.setText("#"+beforeVideo.getTopic().getTitle()+"#");
+        }
+        //more detail
+        MoreDetail detail = beforeVideo.getDetail();
+        destination.setText(detail.getDestination());
+        traffic.setText(detail.getTraffic());
+        beginDate.setText(DateUtil.getDateStr(detail.getBeginDate()));
+        if(null != detail.getDays()){
+            days.setText(detail.getDays() +"");
+        }
+        people.setText(detail.getPeople());
+        if(null != detail.getMoney()) {
+            money.setText(detail.getMoney() + "");
+        }
+        //缩略图
+        Glide.with(this).
+                load("http://"+data.getIp()+":8080/ZhiLvProject/"+beforeVideo.getImg())
+                .into(videoBitmap);
     }
 
     private void getViews(){
@@ -124,7 +159,31 @@ public class UpdateVideoActivity extends AppCompatActivity {
             Intent intent = null;
             switch (v.getId()){
                 case R.id.update_video_btnSubmit:
-
+                    video.setVideoId(beforeVideo.getVideoId());
+                    video.setUser(beforeVideo.getUser());
+                    video.setTitle(videoTitle.getText().toString());
+                    video.setContent(videoContent.getText().toString());
+                    video.setLocation(locationText.getText().toString());
+                    video.setUploadTime(beforeVideo.getUploadTime());
+                    if(null != data.getTopic()){
+                        video.setTopic(data.getTopic());
+                    }else{
+                        video.setTopic(beforeVideo.getTopic());
+                    }
+                    MoreDetail moreDetail = new MoreDetail();
+                    moreDetail.setDestination(destination.getText().toString());
+                    moreDetail.setBeginDate(DateUtil.getDate(beginDate.getText().toString()));
+                    moreDetail.setTraffic(traffic.getText().toString());
+                    if(!"".equals(days.getText().toString())) {
+                        moreDetail.setDays(Integer.parseInt(days.getText().toString()));
+                    }
+                    moreDetail.setPeople(people.getText().toString());
+                    if(!"".equals(money.getText().toString())) {
+                        moreDetail.setMoney(Integer.parseInt(money.getText().toString()));
+                    }
+                    video.setDetail(moreDetail);
+                    EditVideoTask task = new EditVideoTask(UpdateVideoActivity.this, video);
+                    task.execute("http://"+data.getIp()+":8080/ZhiLvProject/audit/video/add");
                     break;
                 case R.id.update_video_bitmap:
                     if(PermissionUtil.openSDCardPermission(UpdateVideoActivity.this)){
@@ -246,8 +305,7 @@ public class UpdateVideoActivity extends AppCompatActivity {
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 // 视频ID:MediaStore.Audio.Media._ID
-                int videoId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
-                video.setVideoId(videoId+"");
+//                int videoId = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID));
                 // 视频名称：MediaStore.Audio.Media.TITLE
                 String videoTitle = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.TITLE));
                 video.setTitle(videoTitle);
@@ -255,7 +313,7 @@ public class UpdateVideoActivity extends AppCompatActivity {
                 String videoPath = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA));
                 video.setPath(videoPath);
                 // 视频时长（默认ms）：MediaStore.Audio.Media.DURATION
-                int duration_ms = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));
+                long duration_ms = cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));
                 int duration_s = (int)Math.floor(duration_ms / 1000);
                 String ds = duration_s + "";
                 if (duration_s < 10){
@@ -271,8 +329,7 @@ public class UpdateVideoActivity extends AppCompatActivity {
                 if (duration_h < 10){
                     dh = "0" + duration_h;
                 }
-                String videoDuration = dh + ":" + dm + ":" + ds;
-                video.setDuration(videoDuration);
+                video.setDuration(dh + ":" + dm + ":" + ds);
                 // 视频大小（默认Byte）：MediaStore.Audio.Media.SIZE
                 long size_byte = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));
                 double size_MB = (size_byte * 1.0) / (1024 * 1024);
@@ -283,6 +340,7 @@ public class UpdateVideoActivity extends AppCompatActivity {
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(this,Uri.parse(videoPath));
                 bitmap = retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC);
+                video.setImg(GetPhotoUtil.bitmapToImg(bitmap));
             }
         }
     }
@@ -298,7 +356,6 @@ public class UpdateVideoActivity extends AppCompatActivity {
                         getVideoData(uri);
                         videoBitmap.setScaleType(ImageView.ScaleType.CENTER_CROP);
                         videoBitmap.setImageBitmap(bitmap);
-                        Log.e("video","ID：" + video.getVideoId());
                         Log.e("video", "标题：" + video.getTitle());
                         Log.e("video", "路径：" + video.getPath());
                         Log.e("video", "时长：" + video.getDuration());

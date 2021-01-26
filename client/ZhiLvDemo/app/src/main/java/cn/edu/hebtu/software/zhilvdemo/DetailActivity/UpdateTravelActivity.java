@@ -211,6 +211,7 @@ public class UpdateTravelActivity extends AppCompatActivity {
                     t.setTicket(ticket.getText().toString());
                     t.setTips(tips.getText().toString());
                     t.setTitle(title.getText().toString());
+                    t.setUploadTime(travels.getUploadTime());
                     if(null != data.getTopic()){
                         t.setTopic(data.getTopic());
                     }else{
