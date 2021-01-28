@@ -55,7 +55,11 @@ public class User implements Parcelable {
         userName = in.readString();
         sex = in.readString();
         signature = in.readString();
-        birth = new Date(in.readLong());
+        if(in.readByte() == 0){
+            birth = null;
+        }else{
+            birth = new Date(in.readLong());
+        }
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -150,7 +154,12 @@ public class User implements Parcelable {
         dest.writeString(userName);
         dest.writeString(sex);
         dest.writeString(signature);
-        dest.writeLong(birth.getTime());
+        if(null == birth) {
+            dest.writeByte((byte) 0);
+        }else{
+            dest.writeByte((byte) 1);
+            dest.writeLong(birth.getTime());
+        }
     }
 
 

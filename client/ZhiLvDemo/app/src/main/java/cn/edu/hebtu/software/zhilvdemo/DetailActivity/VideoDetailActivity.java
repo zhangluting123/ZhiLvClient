@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import cn.edu.hebtu.software.zhilvdemo.Adapter.CommentAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.Comment;
 import cn.edu.hebtu.software.zhilvdemo.Data.MoreDetail;
 import cn.edu.hebtu.software.zhilvdemo.Data.Video;
 import cn.edu.hebtu.software.zhilvdemo.R;
@@ -11,11 +13,13 @@ import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
 import cn.edu.hebtu.software.zhilvdemo.Util.AssetsUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
+import cn.edu.hebtu.software.zhilvdemo.Util.SoftKeyBoardListener;
 import cn.edu.hebtu.software.zhilvdemo.ViewCustom.InnerScrollListView;
 import cn.jzvd.JZVideoPlayer;
 import cn.jzvd.JZVideoPlayerStandard;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
@@ -32,24 +36,35 @@ import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class VideoDetailActivity extends AppCompatActivity {
     private Toolbar toolbar;
@@ -70,7 +85,6 @@ public class VideoDetailActivity extends AppCompatActivity {
     //comment list
     private TextView commentCount;
     private LinearLayout noComment;
-    private InnerScrollListView commentList;
     //click msg
     private ImageView ivComment;
     private ImageView ivGood;
@@ -86,6 +100,9 @@ public class VideoDetailActivity extends AppCompatActivity {
 
     private MyApplication data;
     private Video video;
+    private CommentAdapter commentAdapter;
+    private Integer commentId;//当前选中评论ID
+    private List<Comment> commentList = new ArrayList<>();
 
     @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler(){
@@ -95,8 +112,42 @@ public class VideoDetailActivity extends AppCompatActivity {
                 case 1001:
                     Toast.makeText(getApplicationContext(), (CharSequence)msg.obj, Toast.LENGTH_SHORT).show();
                     break;
-                case 1002:
+                case 1010:
                     finish();
+                    break;
+                case 1002:
+                    commentList = (List<Comment>)msg.obj;
+                    initComment();
+                    break;
+                case 1003:
+                    if(commentList.size() <= 0) { //之前没有评论，初始化adapter
+                        noComment.setVisibility(View.GONE);
+                        showCommentList();
+                    }
+                    Comment comment = new Comment();
+                    comment.setId((Integer.parseInt((String) msg.obj)));
+                    comment.setUser(data.getUser());
+                    comment.setContent(edtInsertComment.getText().toString().trim());
+                    comment.setTime(new Date(System.currentTimeMillis()));
+                    comment.setReplyCount(0);
+                    commentList.add(comment);
+                    commentAdapter.flush(commentList);
+                    int b = Integer.parseInt(commentCount.getText().toString());
+                    b++;
+                    commentCount.setText(b+"");
+                    clearInput();
+                    break;
+                case 1004:
+                    Toast.makeText(getApplicationContext(), (CharSequence)msg.obj, Toast.LENGTH_SHORT).show();
+                    for(int i = 0;i < commentList.size();++i){
+                        if(commentList.get(i).getId().equals(commentId)){
+                            Integer a = commentList.get(i).getReplyCount();
+                            commentList.get(i).setReplyCount(++a);
+                            break;
+                        }
+                    }
+                    commentAdapter.flush(commentList);
+                    clearInput();
                     break;
             }
         }
@@ -116,8 +167,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             addMenu();
         }
         initData();
-
-
+        getComments();
     }
 
     private void initData(){
@@ -176,7 +226,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         //comment list
         commentCount = findViewById(R.id.tv_commentCount);
         noComment = findViewById(R.id.ll_noComment);
-        commentList = findViewById(R.id.comment_list);
         //click msg
         ivComment = findViewById(R.id.iv_comment);
         ivGood = findViewById(R.id.iv_good);
@@ -230,6 +279,7 @@ public class VideoDetailActivity extends AppCompatActivity {
             switch (v.getId()){
                 case R.id.video_detail_iv_headImg:
                     Intent intent = new Intent(VideoDetailActivity.this, OtherUserInfoActivity.class);
+                    intent.putExtra("other", video.getUser());
                     startActivity(intent);
                     break;
                 case R.id.iv_comment:
@@ -255,9 +305,118 @@ public class VideoDetailActivity extends AppCompatActivity {
                     }
                     break;
                 case R.id.btn_submitComment:
+                    if(null != data.getUser()) {
+                        String content = edtInsertComment.getText().toString().trim();
+                        if (content.length() == 0) {
+                            Toast.makeText(VideoDetailActivity.this, "评论内容不能为空", Toast.LENGTH_SHORT).show();
+                        } else {
+                            if(edtInsertComment.getHint().equals("请输入评论")) {
+                                insertComment(content);
+                            }else{
+                                //回复评论
+                                insertReplyComment();
+                            }
+                        }
+                    }else{
+                        Toast.makeText(getApplicationContext(), "请先登录", Toast.LENGTH_LONG).show();
+                    }
                     break;
             }
         }
+    }
+
+    /**
+     *  @author: 张璐婷
+     *  @time: 2021/1/28  12:25
+     *  @Description: 在页面添加获取的评论
+     */
+    private void initComment(){
+        if(commentList.size() <= 0){
+            commentCount.setText("0");
+            noComment();
+        }else{
+            commentCount.setText(commentList.size()+"");
+            showCommentList();
+        }
+    }
+    /**
+     *  @author: 张璐婷
+     *  @time: 2021/1/28  12:25
+     *  @Description: 没有评论
+     */
+    private void noComment(){
+        noComment.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     *  @author: 张璐婷
+     *  @time: 2021/1/28  12:25
+     *  @Description: 展示评论列表
+     */
+    private void showCommentList(){
+        ListView listView = findViewById(R.id.comment_list);
+        commentAdapter = new CommentAdapter(commentList, R.layout.item_comment, getApplicationContext());
+        listView.setAdapter(commentAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                llComment.setVisibility(View.VISIBLE);
+                llClick.setVisibility(View.GONE);
+                edtInsertComment.setHint("回复@"+commentList.get(position).getUser().getUserName());
+                edtInsertComment.setHintTextColor(getResources().getColor(android.R.color.darker_gray));
+                commentId = commentList.get(position).getId();
+                edtInsertComment.setSelection(0);
+                edtInsertComment.setFocusable(true);
+                //键盘如果关闭弹出
+                InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        });
+    }
+
+    /**
+     *  @author: 张璐婷
+     *  @time: 2021/1/28  12:27
+     *  @Description: 触屏操作
+     */
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        onKeyBoardListener();
+        return super.dispatchTouchEvent(ev);
+    }
+
+    /**
+     *  @author: 张璐婷
+     *  @time: 2021/1/28  12:27
+     *  @Description:  清空输入内容,键盘隐藏
+     */
+    private void clearInput(){
+        edtInsertComment.setText("");
+        edtInsertComment.setHint("请输入评论");
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    /**
+     *  @author: 张璐婷
+     *  @time: 2021/1/28  12:27
+     *  @Description: 监听键盘是否弹起
+     */
+    private void onKeyBoardListener(){
+        SoftKeyBoardListener.setListener(VideoDetailActivity.this, new SoftKeyBoardListener.OnSoftKeyBoardChangeListener() {
+            @Override
+            public void keyBoardShow(int height) {
+//                Log.e("软键盘显示高度", height+"");
+            }
+
+            @Override
+            public void keyBoardHide(int height) {
+//                Log.e("软键盘隐藏高度", height+"");
+                if(!edtInsertComment.getHint().equals("请输入评论")) {
+                    edtInsertComment.setHint("请输入评论");
+                }
+            }
+        });
     }
 
     private void deleteVideo(){
@@ -273,7 +432,7 @@ public class VideoDetailActivity extends AppCompatActivity {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
                         String info = reader.readLine();
                         if("OK".equals(info)){
-                            msg.what = 1002;
+                            msg.what = 1010;
                         }else{
                             msg.obj = "删除失败";
                         }
@@ -285,6 +444,130 @@ public class VideoDetailActivity extends AppCompatActivity {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    /**
+     *  @author: 张璐婷
+     *  @time: 2019/12/11  18:39
+     *  @Description: 插入评论
+     */
+    private void insertComment(String content){
+        new Thread(){
+            @Override
+            public void run() {
+                if(DetermineConnServer.isConnByHttp(getApplicationContext())){
+                    try {
+                        URL url = new URL("http://"+data.getIp()+":8080/ZhiLvProject/comment/add?videoId="+video.getVideoId()+"&userId="+data.getUser().getUserId()+"&commentContent="+content);
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                        String str = reader.readLine();
+                        Message msg = Message.obtain();
+                        String[] strings = str.split(",");
+                        if("OK".equals(strings[0])){
+                            msg.what = 1003;
+                            msg.obj = strings[1];
+                            mHandler.sendMessage(msg);
+                        }else{
+                            msg.obj = "评论发布失败";
+                            msg.what = 1001;
+                            mHandler.sendMessage(msg);
+                        }
+
+                        in.close();
+                        reader.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    Message message  = Message.obtain();
+                    message.obj = "未连接到服务器";
+                    message.what = 1001;
+                    mHandler.sendMessage(message);
+                }
+            }
+        }.start();
+    }
+
+    /**
+     *  @author: 张璐婷
+     *  @time: 2019/12/11  18:39
+     *  @Description: 获得评论
+     */
+    private void getComments(){
+        new Thread(){
+            @Override
+            public void run() {
+                if(DetermineConnServer.isConnByHttp(getApplicationContext())){
+                    try {
+                        List<Comment> list = new ArrayList<>();
+                        URL url = new URL("http://"+data.getIp()+":8080/ZhiLvProject/comment/list?videoId="+video.getVideoId());
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                        String str = null;
+                        if((str = reader.readLine()) != null){
+                            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                            Type type = new TypeToken<List<Comment>>(){}.getType();
+                            list = gson.fromJson(str,type);
+                        }
+                        Message msg = Message.obtain();
+                        msg.what = 1002;
+                        msg.obj = list;
+                        mHandler.sendMessage(msg);
+
+                        in.close();
+                        reader.close();
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }else{
+                    Message message  = Message.obtain();
+                    message.what = 1001;
+                    message.obj = "未连接到服务器";
+                    mHandler.sendMessage(message);
+                }
+            }
+        }.start();
+    }
+
+    /**
+     *  @author: 张璐婷
+     *  @time: 2020/4/20  16:37
+     *  @Description: 回复评论
+     */
+    public void insertReplyComment(){
+        new Thread(){
+            @Override
+            public void run() {
+                if(DetermineConnServer.isConnByHttp(getApplicationContext())){
+                    try {
+                        URL url = new URL("http://"+data.getIp()+":8080/ZhiLvProject/reply/add?replyContent="+edtInsertComment.getText().toString()+"&commentId="+commentId+"&replyUserId="+data.getUser().getUserId());
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                        if(reader.readLine().equals("OK")){
+                            Message message = Message.obtain();
+                            message.what = 1004;
+                            message.obj = "回复成功";
+                            mHandler.sendMessage(message);
+                        }
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    Message message  = Message.obtain();
+                    message.what = 1001;
+                    message.obj = "未连接到服务器";
+                    mHandler.sendMessage(message);
                 }
             }
         }.start();

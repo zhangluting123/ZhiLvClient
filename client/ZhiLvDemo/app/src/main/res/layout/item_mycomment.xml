@@ -1,102 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<cn.edu.hebtu.software.zhilvdemo.ViewCustom.SwipeListLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="20dp"
-    android:paddingRight="20dp"
-    android:paddingLeft="10dp"
-    android:descendantFocusability="blocksDescendants"
+    android:orientation="horizontal"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <ImageView
-        android:id="@+id/iv_read_flag"
-        android:layout_width="6dp"
-        android:layout_height="6dp"
-        android:src="@mipmap/unread_flag"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="16dp" />
-    <ImageView
-        android:id="@+id/iv_after_Head"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_toRightOf="@+id/iv_read_flag"
-        android:src="@mipmap/home_head_default" />
-    <TextView
-        android:id="@+id/tv_after_userName"
-        android:layout_toRightOf="@id/iv_after_Head"
-        android:layout_marginLeft="20dp"
-        android:textSize="13sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="李四"/>
-    <TextView
-        android:id="@+id/tv_after_content"
-        android:layout_toRightOf="@id/iv_after_Head"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_below="@id/tv_after_userName"
-        android:textColor="@android:color/black"
-        android:text="测试测试测试测尺测试测试测试测试测试测尺测试测试"/>
-    <TextView
-        android:id="@+id/tv_after_Date"
-        android:layout_marginRight="4dp"
-        android:layout_alignParentRight="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="10sp"
-        android:text="2019/11/12"/>
     <LinearLayout
-        android:id="@+id/ll_before_note"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="20dp"
-        android:padding="10dp"
-        android:layout_below="@id/tv_after_content"
-        android:background="@color/gray_light">
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal" >
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:text="我发布的动态："/>
-        <TextView
-            android:id="@+id/tv_noteTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/brown_deep"
-            android:text="标题"/>
+            android:id="@+id/tv_delete"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:background="@color/brown_light"
+            android:gravity="center"
+            android:text="删除" />
     </LinearLayout>
     <RelativeLayout
-        android:id="@+id/rl_before_comment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="20dp"
-        android:padding="10dp"
-        android:layout_below="@id/tv_after_content"
-        android:background="@color/gray_light">
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp">
+        <ImageView
+            android:id="@+id/iv_read_flag"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:src="@mipmap/unread_flag"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"/>
+        <ImageView
+            android:id="@+id/iv_after_Head"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_toRightOf="@+id/iv_read_flag"
+            android:src="@mipmap/home_head_default" />
         <TextView
-            android:id="@+id/tv_huifu"
+            android:id="@+id/tv_after_userName"
+            android:layout_toRightOf="@id/iv_after_Head"
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="10dp"
+            android:textSize="13sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/teal_200"
-            android:text="回复："/>
+            android:text="李四"/>
         <TextView
-            android:id="@+id/tv_before_userName"
+            android:id="@+id/tv_after_Date"
+            android:layout_marginRight="4dp"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            android:text="2019/11/12"/>
+        <TextView
+            android:id="@+id/tv_after_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/tv_huifu"
-            android:textColor="@color/brown_deep"
-            android:text="张三"/>
-        <TextView
-            android:id="@+id/tv_before_content"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_huifu"
+            android:layout_marginLeft="20dp"
             android:layout_marginTop="10dp"
-            android:textSize="12sp"
-            android:text="测试测试测试测试测试测试测试"/>
+            android:layout_below="@id/iv_after_Head"
+            android:textColor="@android:color/black"
+            android:text="测试测试测试测尺测试测试测试测试测试测尺测试测试"/>
     </RelativeLayout>
-</RelativeLayout>
+</cn.edu.hebtu.software.zhilvdemo.ViewCustom.SwipeListLayout>

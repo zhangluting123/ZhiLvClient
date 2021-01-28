@@ -12,6 +12,7 @@ import android.widget.Adapter;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mob.tools.RxMob;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
@@ -148,7 +149,7 @@ public class LocalHomeFragment extends Fragment {
                     InputStream in = conn.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
                     String info = reader.readLine();
-                    Gson gson = new Gson();
+                    Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
                     Type type = new TypeToken<List<Note>>(){}.getType();
                     List<Note> noteList = gson.fromJson(info,type);
                     msg.what = 1002;

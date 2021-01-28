@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import cn.edu.hebtu.software.zhilvdemo.Data.User;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
 import cn.edu.hebtu.software.zhilvdemo.Util.JudgeStrUtil;
+import cn.edu.hebtu.software.zhilvdemo.Util.SharedUtil;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -58,6 +60,8 @@ public class LoginActivity extends AppCompatActivity {
                     break;
                 case 1002:
                     data.setUser((User)msg.obj);
+                    //将登陆信息保存在本地
+                    setUserMsgLocal(data.getUser());
                     finish();
                     break;
             }
@@ -128,6 +132,18 @@ public class LoginActivity extends AppCompatActivity {
                     break;
             }
         }
+    }
+
+    private void setUserMsgLocal(User user){
+        SharedUtil.putInt("userMsg",this,"userId",user.getUserId());
+        SharedUtil.putString("userMsg",this,"phone",user.getPhone());
+        SharedUtil.putString("userMsg",this,"email",user.getEmail());
+        SharedUtil.putString("userMsg",this,"password",user.getPassword());
+        SharedUtil.putString("userMsg",this,"userHead",user.getUserHead());
+        SharedUtil.putString("userMsg",this,"userName",user.getUserName());
+        SharedUtil.putString("userMsg",this,"sex",user.getSex());
+        SharedUtil.putString("userMsg",this,"birth", DateUtil.getDateStr(user.getBirth()));
+        SharedUtil.putString("userMsg",this,"signature",user.getSignature());
     }
 
     private void login(String pwd) {

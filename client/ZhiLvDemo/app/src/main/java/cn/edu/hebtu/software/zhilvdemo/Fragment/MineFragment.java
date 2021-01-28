@@ -49,7 +49,9 @@ import cn.edu.hebtu.software.zhilvdemo.Fragment.Mine.GoodMineFragment;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.Mine.TravelsMineFragment;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
+import cn.edu.hebtu.software.zhilvdemo.Util.SharedUtil;
 
 /**
  * @ProjectName:    ZhiLv
@@ -178,6 +180,7 @@ public class MineFragment extends Fragment {
             switch (view.getId()){
                 case R.id.mine_logout:
                     data.setUser(null);
+                    clearUserMsgLocal();
                     intent = new Intent(getActivity().getApplication(), MainActivity.class);
                     startActivity(intent);
                     getActivity().finish();
@@ -211,6 +214,17 @@ public class MineFragment extends Fragment {
         }
     }
 
+    private void clearUserMsgLocal(){
+        SharedUtil.putInt("userMsg",getActivity(),"userId",-1);
+        SharedUtil.putString("userMsg",getActivity(),"phone",null);
+        SharedUtil.putString("userMsg",getActivity(),"email",null);
+        SharedUtil.putString("userMsg",getActivity(),"password",null);
+        SharedUtil.putString("userMsg",getActivity(),"userHead",null);
+        SharedUtil.putString("userMsg",getActivity(),"userName",null);
+        SharedUtil.putString("userMsg",getActivity(),"sex",null);
+        SharedUtil.putString("userMsg",getActivity(),"birth", null);
+        SharedUtil.putString("userMsg",getActivity(),"signature",null);
+    }
 
     class FindAttenionList extends Thread{
             @Override

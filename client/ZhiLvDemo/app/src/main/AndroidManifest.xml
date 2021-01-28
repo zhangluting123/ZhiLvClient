@@ -65,6 +65,9 @@
         <activity
             android:name=".DetailActivity.AddVideoActivity"
             android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".DetailActivity.ReplyCommentActivity"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity android:name=".DetailActivity.SceneDetailActivity" />
         <activity android:name=".DetailActivity.TravelDetailActivity" />
         <activity android:name=".DetailActivity.MyFansListActivity" />

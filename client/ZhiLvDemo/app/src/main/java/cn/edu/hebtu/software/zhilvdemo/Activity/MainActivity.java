@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import cn.edu.hebtu.software.zhilvdemo.Data.MoreDetail;
+import cn.edu.hebtu.software.zhilvdemo.Data.User;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.AddTravelsActivity;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.DestinationFragment;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.HomeFragment;
@@ -13,7 +14,9 @@ import cn.edu.hebtu.software.zhilvdemo.Fragment.MessageFragment;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.MineFragment;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.Util.DateUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.PermissionUtil;
+import cn.edu.hebtu.software.zhilvdemo.Util.SharedUtil;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -74,12 +77,38 @@ public class MainActivity extends AppCompatActivity {
         data = (MyApplication)getApplication();
         data.setIp(getString(R.string.internet_ip));
 
+        //判断是否第一次下载APP
+        boolean isFirstIn = SharedUtil.getBoolean("isGuide", this,"isFirstIn",true);
+        if(isFirstIn){
+            SharedUtil.putBoolean("isGuide", getApplicationContext(),"isFirstIn", false);
+        }else{
+            //获取保存在本地的信息
+            data.setUser(getUserMsgLocal());
+        }
 
         //如果定位权限已经开启，则进行定位，否则开启权限，在权限回调成功后开启定位
         if(PermissionUtil.openLocationPermission(this)){
             locationOption();
         }
         initView();
+    }
+
+    private User getUserMsgLocal(){
+        if(-1 >= SharedUtil.getInt("userMsg",this,"userId")){
+            return null;
+        }else {
+            User user = new User();
+            user.setUserId(SharedUtil.getInt("userMsg",this,"userId"));
+            user.setPhone(SharedUtil.getString("userMsg", this, "phone"));
+            user.setEmail(SharedUtil.getString("userMsg", this, "email"));
+            user.setPassword(SharedUtil.getString("userMsg", this, "password"));
+            user.setUserHead(SharedUtil.getString("userMsg", this, "userHead"));
+            user.setUserName(SharedUtil.getString("userMsg", this, "userName"));
+            user.setSex(SharedUtil.getString("userMsg", this, "sex"));
+            user.setBirth(DateUtil.getDate(SharedUtil.getString("userMsg", this, "birth")));
+            user.setSignature(SharedUtil.getString("userMsg", this, "signature"));
+            return user;
+        }
     }
 
     private void initView(){
