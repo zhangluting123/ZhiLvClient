@@ -152,6 +152,14 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
                     commentAdapter.flush(commentList);
                     clearInput();
                     break;
+                case 1101:
+                    ivGood.setTag("good");
+                    ivGood.setImageResource(R.drawable.good_selected);
+                    break;
+                case 1102:
+                    ivStar.setTag("star");
+                    ivStar.setImageResource(R.drawable.star_selected);
+                    break;
             }
         }
     };
@@ -164,14 +172,18 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
         data = (MyApplication)getApplication();
         getViews();
         registListener();
+        initData();
         //判断是否是当前用户，是则有菜单功能
-        if(null != data.getUser()){
+        if(null != data.getUser() && data.getUser().getUserId() == travels.getUser().getUserId()){
             addMenu();
         }
-
-        initData();
         //获得评论
         getComments();
+        //查询点赞收藏情况
+        if (null != data.getUser()) {
+            ifGoodOrCollect("good/ifGood");
+            ifGoodOrCollect("collection/ifCollect");
+        }
     }
 
     private void initData(){
@@ -300,21 +312,35 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
                     llClick.setVisibility(View.GONE);
                     break;
                 case R.id.iv_good:
-                    if(ivGood.getTag().equals("good")){
-                        ivGood.setTag("nogood");
-                        ivGood.setImageResource(R.drawable.good_noselected);
+                    if(null != data.getUser()){
+                        if(ivGood.getTag().equals("good")){
+                            ivGood.setTag("nogood");
+                            ivGood.setImageResource(R.drawable.good_noselected);
+                            //取消点赞
+                            deleteGoodOrCollect("good/delete");
+                        }else{
+                            ivGood.setTag("good");
+                            ivGood.setImageResource(R.drawable.good_selected);
+                            //添加点赞
+                            addGoodOrCollect("good/add");
+                        }
                     }else{
-                        ivGood.setTag("good");
-                        ivGood.setImageResource(R.drawable.good_selected);
+                        Toast.makeText(getApplicationContext(), "请先登录", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case R.id.iv_star:
-                    if(ivStar.getTag().equals("star")){
-                        ivStar.setTag("nostar");
-                        ivStar.setImageResource(R.drawable.star_noselected);
+                    if(null != data.getUser()){
+                        if(ivStar.getTag().equals("star")){
+                            ivStar.setTag("nostar");
+                            ivStar.setImageResource(R.drawable.star_noselected);
+                            deleteGoodOrCollect("collection/delete");
+                        }else{
+                            ivStar.setTag("star");
+                            ivStar.setImageResource(R.drawable.star_selected);
+                            addGoodOrCollect("collection/add");
+                        }
                     }else{
-                        ivStar.setTag("star");
-                        ivStar.setImageResource(R.drawable.star_selected);
+                        Toast.makeText(getApplicationContext(), "请先登录", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case R.id.btn_submitComment:
@@ -533,6 +559,96 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
         return true;
     }
 
+    private void ifGoodOrCollect(String str){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Message msg = Message.obtain();
+                    if(DetermineConnServer.isConnByHttp(TravelDetailActivity.this)) {
+                        URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/"+str+"?userId="+data.getUser().getUserId()+"&travelsId="+travels.getTravelsId() );
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                        String info = reader.readLine();
+                        if(str.contains("good") && "TRUE".equals(info)){
+                            msg.what = 1101;
+                        }else if(str.contains("collection") && "TRUE".equals(info)){
+                            msg.what = 1102;
+                        }
+                    }else {
+                        msg.what = 1001;
+                        msg.obj = "未连接到服务器";
+                    }
+                    mHandler.sendMessage(msg);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    private void addGoodOrCollect(String str){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Message msg = Message.obtain();
+                    if(DetermineConnServer.isConnByHttp(TravelDetailActivity.this)) {
+                        URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/"+str+"?userId="+data.getUser().getUserId()+"&travelsId="+travels.getTravelsId() );
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                        String info = reader.readLine();
+                        if("ERROR".equals(info)){
+                            msg.what = 1001;
+                            msg.obj = "添加失败";
+                        }
+                    }else {
+                        msg.obj = "未连接到服务器";
+                    }
+                    mHandler.sendMessage(msg);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    private void deleteGoodOrCollect(String str){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Message msg = Message.obtain();
+                    if(DetermineConnServer.isConnByHttp(TravelDetailActivity.this)) {
+                        URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/"+str+"?userId="+data.getUser().getUserId()+"&travelsId="+travels.getTravelsId() );
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                        String info = reader.readLine();
+                        if("ERROR".equals(info)){
+                            msg.what = 1001;
+                            msg.obj = "取消失败";
+                        }
+                    }else {
+                        msg.what = 1001;
+                        msg.obj = "未连接到服务器";
+                    }
+                    mHandler.sendMessage(msg);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
     private void deleteTravels(){
         new Thread(){
             @Override
@@ -548,9 +664,11 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
                         if("OK".equals(info)){
                             msg.what = 1010;
                         }else{
+                            msg.what = 1001;
                             msg.obj = "删除失败";
                         }
                     }else {
+                        msg.what = 1001;
                         msg.obj = "未连接到服务器";
                     }
                     mHandler.sendMessage(msg);

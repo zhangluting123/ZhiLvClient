@@ -17,7 +17,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
  * @Version:        1.0
  */
 public class ChannelPagerAdapter extends FragmentStatePagerAdapter {
-    private final List<Fragment> fragmentList;
+    private List<Fragment> fragmentList;
     private final String[] titles ;
 
     public ChannelPagerAdapter(FragmentManager fm, List<Fragment> fragmentList, String[] titles){
@@ -43,4 +43,5 @@ public class ChannelPagerAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         return fragmentList.size();
     }
+
 }

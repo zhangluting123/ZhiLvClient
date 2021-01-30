@@ -19,14 +19,14 @@
             android:src="@drawable/comment"/>
         <ImageView
             android:id="@+id/iv_good"
-            android:tag="good"
+            android:tag="nogood"
             android:layout_marginTop="12dp"
             android:layout_marginRight="40dp"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:src="@drawable/good_noselected"/>
         <ImageView
-            android:tag="star"
+            android:tag="nostar"
             android:id="@+id/iv_star"
             android:layout_marginTop="12dp"
             android:layout_width="25dp"

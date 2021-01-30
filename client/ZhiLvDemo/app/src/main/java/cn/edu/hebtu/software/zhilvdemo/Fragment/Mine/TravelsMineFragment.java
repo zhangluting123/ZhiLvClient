@@ -35,14 +35,12 @@ public class TravelsMineFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if(null == view){
-            view = inflater.inflate(R.layout.fragment_travels_mine,container,false);
-            mRecyclerView = view.findViewById(R.id.travels_mine_recycler);
+        view = inflater.inflate(R.layout.fragment_travels_mine,container,false);
+        mRecyclerView = view.findViewById(R.id.travels_mine_recycler);
 
 //            initDatas();
-            showStagger();
+        showStagger();
 
-        }
 
         return view;
     }

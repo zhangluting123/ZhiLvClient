@@ -30,7 +30,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ZhiLvDemo">
-
+        <activity android:name=".DetailActivity.PraisedActivity"></activity>
         <activity android:name=".Activity.ChangePwdActivity" />
         <activity android:name=".Activity.ChangeEmailActivity" />
         <activity android:name=".Activity.ChangePhoneActivity" />

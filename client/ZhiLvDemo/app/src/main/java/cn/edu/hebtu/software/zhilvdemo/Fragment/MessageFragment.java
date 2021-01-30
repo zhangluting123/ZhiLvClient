@@ -1,6 +1,7 @@
 package cn.edu.hebtu.software.zhilvdemo.Fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -32,9 +33,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import cn.edu.hebtu.software.zhilvdemo.Activity.MainActivity;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.MessageCommentAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.MyAttentionListAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Data.MailMyComment;
+import cn.edu.hebtu.software.zhilvdemo.DetailActivity.PraisedActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
 import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
@@ -110,6 +113,8 @@ public class MessageFragment extends Fragment {
                 case R.id.message_rl_notification:
                     break;
                 case R.id.message_rl_good:
+                    Intent intent = new Intent(getActivity(), PraisedActivity.class);
+                    startActivity(intent);
                     break;
                 case R.id.message_rl_chat:
                     break;

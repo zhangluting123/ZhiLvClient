@@ -149,6 +149,14 @@ public class VideoDetailActivity extends AppCompatActivity {
                     commentAdapter.flush(commentList);
                     clearInput();
                     break;
+                case 1101:
+                    ivGood.setTag("good");
+                    ivGood.setImageResource(R.drawable.good_selected);
+                    break;
+                case 1102:
+                    ivStar.setTag("star");
+                    ivStar.setImageResource(R.drawable.star_selected);
+                    break;
             }
         }
     };
@@ -163,11 +171,15 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         getViews();
         registListener();
-        if(null != data.getUser()){
+        initData();
+        if(null != data.getUser() && data.getUser().getUserId() == video.getUser().getUserId()){
             addMenu();
         }
-        initData();
         getComments();
+        if(null != data.getUser()){
+            ifGoodOrCollect("good/ifGood");
+            ifGoodOrCollect("collection/ifCollect");
+        }
     }
 
     private void initData(){
@@ -202,7 +214,6 @@ public class VideoDetailActivity extends AppCompatActivity {
         videoPlayer.setUp("http://"+data.getIp()+":8080/ZhiLvProject/"+video.getPath(),
                 JZVideoPlayerStandard.SCREEN_WINDOW_NORMAL,
                 "");
-//        videoPlayer.thumbImageView.setImageBitma();
         //实现重力感应下横屏切换
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensorEventListener = new JZVideoPlayer.JZAutoFullscreenListener();
@@ -287,21 +298,33 @@ public class VideoDetailActivity extends AppCompatActivity {
                     llClick.setVisibility(View.GONE);
                     break;
                 case R.id.iv_good:
-                    if(ivGood.getTag().equals("good")){
-                        ivGood.setTag("nogood");
-                        ivGood.setImageResource(R.drawable.good_noselected);
+                    if(null != data.getUser()){
+                        if(ivGood.getTag().equals("good")){
+                            ivGood.setTag("nogood");
+                            ivGood.setImageResource(R.drawable.good_noselected);
+                            deleteGoodOrCollect("good/delete");
+                        }else{
+                            ivGood.setTag("good");
+                            ivGood.setImageResource(R.drawable.good_selected);
+                            addGoodOrCollect("good/add");
+                        }
                     }else{
-                        ivGood.setTag("good");
-                        ivGood.setImageResource(R.drawable.good_selected);
+                        Toast.makeText(getApplicationContext(), "请先登录", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case R.id.iv_star:
-                    if(ivStar.getTag().equals("star")){
-                        ivStar.setTag("nostar");
-                        ivStar.setImageResource(R.drawable.star_noselected);
+                    if(null != data.getUser()){
+                        if(ivStar.getTag().equals("star")){
+                            ivStar.setTag("nostar");
+                            ivStar.setImageResource(R.drawable.star_noselected);
+                            deleteGoodOrCollect("collection/delete");
+                        }else{
+                            ivStar.setTag("star");
+                            ivStar.setImageResource(R.drawable.star_selected);
+                            addGoodOrCollect("collection/add");
+                        }
                     }else{
-                        ivStar.setTag("star");
-                        ivStar.setImageResource(R.drawable.star_selected);
+                        Toast.makeText(getApplicationContext(), "请先登录", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case R.id.btn_submitComment:
@@ -417,6 +440,96 @@ public class VideoDetailActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void ifGoodOrCollect(String str){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Message msg = Message.obtain();
+                    if(DetermineConnServer.isConnByHttp(VideoDetailActivity.this)) {
+                        URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/"+str+"?userId="+data.getUser().getUserId()+"&videoId="+video.getVideoId());
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                        String info = reader.readLine();
+                        if(str.contains("good") && "TRUE".equals(info)){
+                            msg.what = 1101;
+                        }else if(str.contains("collection") && "TRUE".equals(info)){
+                            msg.what = 1102;
+                        }
+                    }else {
+                        msg.what = 1001;
+                        msg.obj = "未连接到服务器";
+                    }
+                    mHandler.sendMessage(msg);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    private void addGoodOrCollect(String str){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Message msg = Message.obtain();
+                    if(DetermineConnServer.isConnByHttp(VideoDetailActivity.this)) {
+                        URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/"+str+"?userId="+data.getUser().getUserId()+"&videoId="+video.getVideoId());
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                        String info = reader.readLine();
+                        if("ERROR".equals(info)){
+                            msg.what = 1001;
+                            msg.obj = "添加失败";
+                        }
+                    }else {
+                        msg.obj = "未连接到服务器";
+                    }
+                    mHandler.sendMessage(msg);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    private void deleteGoodOrCollect(String str){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Message msg = Message.obtain();
+                    if(DetermineConnServer.isConnByHttp(VideoDetailActivity.this)) {
+                        URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/"+str+"?userId="+data.getUser().getUserId()+"&videoId="+video.getVideoId());
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                        String info = reader.readLine();
+                        if("ERROR".equals(info)){
+                            msg.what = 1001;
+                            msg.obj = "取消失败";
+                        }
+                    }else {
+                        msg.what = 1001;
+                        msg.obj = "未连接到服务器";
+                    }
+                    mHandler.sendMessage(msg);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 
     private void deleteVideo(){
