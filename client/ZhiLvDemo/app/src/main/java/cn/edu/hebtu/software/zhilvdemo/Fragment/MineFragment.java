@@ -302,8 +302,10 @@ public class MineFragment extends Fragment {
             }else{
                 userSex.setImageResource(R.mipmap.home_boy);
             }
-            attentionNum.setText(attenList.size()+"");
-            fansNum.setText(fansList.size()+"");
+            if(null != attenList && null != fansList){
+                attentionNum.setText(attenList.size()+"");
+                fansNum.setText(fansList.size()+"");
+            }
         }
     }
 }
