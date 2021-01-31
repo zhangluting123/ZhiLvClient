@@ -172,6 +172,11 @@ public class LocalHomeFragment extends Fragment {
         thread.start();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        initDatas();
+    }
 }
 
 
