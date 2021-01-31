@@ -1,4 +1,4 @@
-package cn.edu.hebtu.software.zhilvdemo.Fragment.Mine;
+package cn.edu.hebtu.software.zhilvdemo.Fragment.Other;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -40,18 +40,20 @@ import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
 
 /**
  * @ProjectName:    ZhiLv
- * @Description:    我的游记
+ * @Description:    别人的游记
  * @Author:         张璐婷
  * @CreateDate:     2020/12/14$ 12:19$
  * @Version:        1.0
  */
-public class TravelsMineFragment extends Fragment {
+public class TravelsOtherFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private List<Note> mDatas = new ArrayList<>();
     private View view;
     private StaggeredGridAdapter adapter;
 
     private MyApplication data;
+    private Integer otherId;
+
     @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler(){
         @Override
@@ -67,6 +69,11 @@ public class TravelsMineFragment extends Fragment {
             }
         }
     };
+
+    public TravelsOtherFragment(Integer otherId) {
+        this.otherId = otherId;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -116,7 +123,7 @@ public class TravelsMineFragment extends Fragment {
             try {
                 Message msg = Message.obtain();
                 if(DetermineConnServer.isConnByHttp(getActivity().getApplicationContext())) {
-                    URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/note/userlist?userId="+data.getUser().getUserId());
+                    URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/note/userlist?userId="+otherId);
                     URLConnection conn = url.openConnection();
                     InputStream in = conn.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
@@ -140,15 +147,8 @@ public class TravelsMineFragment extends Fragment {
     }
 
     private void initDatas(){
-        if(null != data.getUser()){
-            Thread thread = new GetListThread();
-            thread.start();
-        }
+        Thread thread = new GetListThread();
+        thread.start();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        initDatas();
-    }
 }

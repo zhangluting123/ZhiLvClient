@@ -144,7 +144,7 @@ public class LocalHomeFragment extends Fragment {
             try {
                 Message msg = Message.obtain();
                 if(DetermineConnServer.isConnByHttp(getActivity().getApplicationContext())) {
-                    URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/note/list" );
+                    URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/note/locationlist?location="+data.getCity());
                     URLConnection conn = url.openConnection();
                     InputStream in = conn.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));

@@ -5,9 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.ChannelPagerAdapter;
-import cn.edu.hebtu.software.zhilvdemo.Adapter.StaggeredGridAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Data.User;
-import cn.edu.hebtu.software.zhilvdemo.Fragment.Mine.TravelsMineFragment;
+import cn.edu.hebtu.software.zhilvdemo.Fragment.Other.TravelsOtherFragment;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
 import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
@@ -29,7 +28,6 @@ import android.widget.Toast;
 import com.astuetz.PagerSlidingTabStrip;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.mob.tools.RxMob;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -144,8 +142,8 @@ public class OtherUserInfoActivity extends AppCompatActivity {
 
     private void initFragment() {
         fragmentList = new ArrayList<Fragment>();
-        Fragment travelsMineFragment = new TravelsMineFragment();
-        fragmentList.add(travelsMineFragment);
+        Fragment travelsOtherFragment = new TravelsOtherFragment(other.getUserId());
+        fragmentList.add(travelsOtherFragment);
     }
 
 

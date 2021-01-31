@@ -79,7 +79,7 @@ public class ShowTopicActivity extends AppCompatActivity {
             @Override
             public void onItemClick(int position) {
                 Intent intent = new Intent(ShowTopicActivity.this,TopicDetailActivity.class);
-                intent.putExtra("topic", "话题详情页");
+                intent.putExtra("topic", mDatas.get(position));
                 startActivity(intent);
             }
         });

@@ -37,6 +37,7 @@ import cn.edu.hebtu.software.zhilvdemo.Activity.MainActivity;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.MessageCommentAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.MyAttentionListAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Data.MailMyComment;
+import cn.edu.hebtu.software.zhilvdemo.DetailActivity.NotificationActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.PraisedActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
@@ -109,11 +110,14 @@ public class MessageFragment extends Fragment {
     class CustomOnClickListener implements View.OnClickListener{
         @Override
         public void onClick(View v) {
+            Intent intent = null;
             switch (v.getId()){
                 case R.id.message_rl_notification:
+                    intent = new Intent(getActivity(), NotificationActivity.class);
+                    startActivity(intent);
                     break;
                 case R.id.message_rl_good:
-                    Intent intent = new Intent(getActivity(), PraisedActivity.class);
+                    intent = new Intent(getActivity(), PraisedActivity.class);
                     startActivity(intent);
                     break;
                 case R.id.message_rl_chat:

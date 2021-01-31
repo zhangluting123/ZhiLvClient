@@ -102,6 +102,7 @@ public class DestinationFragment extends Fragment {
                     topicText1.setText(topics.get(0).getTitle());
                     topicText2.setText(topics.get(1).getTitle());
                     break;
+
             }
         }
     };
@@ -111,9 +112,9 @@ public class DestinationFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if(null == view) {
             view = inflater.inflate(R.layout.fragment_destination, null);
-            topicTwiceList();
             getViews();
             registListener();
+            topicTwiceList();
         }
         data = (MyApplication)getActivity().getApplication();
         location.setText(data.getCity());
@@ -206,18 +207,18 @@ public class DestinationFragment extends Fragment {
                     startActivity(intent);
                     break;
                 case R.id.destination_rl_topic1:
-                    intent = new Intent(getActivity().getApplicationContext(), TopicDetailActivity.class);
                     if(null != topics){
-                        intent.putExtra("topic", topics.get(0).getTitle());
+                        intent = new Intent(getActivity().getApplicationContext(), TopicDetailActivity.class);
+                        intent.putExtra("topic", topics.get(0));
+                        startActivity(intent);
                     }
-                    startActivity(intent);
                     break;
                 case R.id.destination_rl_topic2:
-                    intent = new Intent(getActivity().getApplicationContext(), TopicDetailActivity.class);
                     if(null != topics){
-                        intent.putExtra("topic", topics.get(1).getTitle());
+                        intent = new Intent(getActivity().getApplicationContext(), TopicDetailActivity.class);
+                        intent.putExtra("topic", topics.get(1));
+                        startActivity(intent);
                     }
-                    startActivity(intent);
                     break;
             }
         }
