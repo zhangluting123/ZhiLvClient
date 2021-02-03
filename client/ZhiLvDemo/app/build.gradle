@@ -11,7 +11,7 @@ android {
     }
     signingConfigs {
         debug {
-            storeFile file('F:\\AndroidStudio\\keystore\\keystorezhilv.jks')
+            storeFile file('..\\keystore\\keystorezhilv.jks')
             storePassword '123456'
             keyAlias 'ZhiLvDemo'
             keyPassword '123456'
