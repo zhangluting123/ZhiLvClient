@@ -17,11 +17,13 @@
             app:titleTextAppearance="@style/Toolbar.TitleText"/>
         <Button
             android:id="@+id/scene_btn_submit"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:layout_width="70dp"
+            android:layout_height="30dp"
             android:layout_alignParentRight="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#00000000"
-            android:textSize="16sp"
+            android:textColor="@color/MyThemeColor"
+            android:background="@drawable/btn_attention"
             android:text="完成"/>
     </RelativeLayout>
 

@@ -39,6 +39,7 @@ import cn.edu.hebtu.software.zhilvdemo.Adapter.MyAttentionListAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Data.MailMyComment;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.NotificationActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.PraisedActivity;
+import cn.edu.hebtu.software.zhilvdemo.DetailActivity.SubmitProblemActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
 import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
@@ -121,6 +122,8 @@ public class MessageFragment extends Fragment {
                     startActivity(intent);
                     break;
                 case R.id.message_rl_chat:
+                    intent = new Intent(getActivity(), SubmitProblemActivity.class);
+                    startActivity(intent);
                     break;
             }
         }
