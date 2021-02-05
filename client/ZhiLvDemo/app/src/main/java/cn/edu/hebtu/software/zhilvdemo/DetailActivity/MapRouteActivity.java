@@ -1,27 +1,42 @@
 package cn.edu.hebtu.software.zhilvdemo.DetailActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
 import cn.edu.hebtu.software.zhilvdemo.Util.BaiduMapUtil.DrivingRouteOverlay;
+import cn.edu.hebtu.software.zhilvdemo.Util.BaiduMapUtil.RouteLineAdapter;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ZoomControls;
 
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.InfoWindow;
+import com.baidu.mapapi.map.MapPoi;
 import com.baidu.mapapi.map.MapStatus;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.TextureMapView;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.core.PoiInfo;
+import com.baidu.mapapi.search.core.RouteLine;
 import com.baidu.mapapi.search.core.SearchResult;
-import com.baidu.mapapi.search.poi.PoiSearch;
+import com.baidu.mapapi.search.geocode.GeoCodeResult;
+import com.baidu.mapapi.search.geocode.GeoCoder;
+import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.baidu.mapapi.search.route.BikingRouteResult;
 import com.baidu.mapapi.search.route.DrivingRoutePlanOption;
 import com.baidu.mapapi.search.route.DrivingRouteResult;
@@ -35,16 +50,19 @@ import com.baidu.mapapi.search.route.WalkingRouteResult;
 import com.baidu.mapapi.utils.route.BaiduMapRoutePlan;
 import com.baidu.mapapi.utils.route.RouteParaOption;
 
+import java.util.List;
+
 
 public class MapRouteActivity extends AppCompatActivity {
+    private RecyclerView recyclerView;
     private Button btnMoreRoutePlan;
     private TextureMapView mapView;
     private BaiduMap baiduMap;
-    private LocationClient locationClient;
-    private LocationClientOption locationClientOption;
-    private PoiSearch poiSearch;
     private RoutePlanSearch routePlanSearch;
+    private DrivingRoutePlanOption option;
+    private Marker marker;
     private MyApplication data;
+    private static final String TAG = "百度地图";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,11 +98,159 @@ public class MapRouteActivity extends AppCompatActivity {
         }
         //不显示指南针
         baiduMap.setCompassEnable(false);
+        //设置mark覆盖物拖拽监听器
+        baiduMap.setOnMarkerDragListener(new MyMarkerDragListener());
+        //设置mark覆盖物点击监听器
+        baiduMap.setOnMarkerClickListener(new MyMarkerClickListener());
 
+        baiduMap.setOnMapClickListener(new BaiduMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                clearOverlay();
+            }
 
+            @Override
+            public void onMapPoiClick(MapPoi mapPoi) {
+                String POIName = mapPoi.getName();//POI点名称
+                LatLng POIPosition = mapPoi.getPosition();//POI点坐标
+                //下面就是自己随便应用了
+                initOverlay(POIPosition);
+                //将该POI点设置为地图中心
+//                baiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(POIPosition));
+            }
+        });
+    }
+
+    //初始化添加覆盖物mark
+    private void initOverlay(LatLng latLng) {
+        Log.e(TAG, "Start initOverlay");
+
+        //设置覆盖物添加的方式与效果
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(latLng)//mark出现的位置
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_marka))       //mark图标
+                .draggable(true)//mark可拖拽
+//                .animateType(MarkerOptions.MarkerAnimateType.drop)//从天而降的方式
+                .animateType(MarkerOptions.MarkerAnimateType.grow)//从地生长的方式
+                ;
+        //添加mark
+        marker = (Marker) (baiduMap.addOverlay(markerOptions));//地图上添加mark
+
+        //弹出View(气泡，意即在地图中显示一个信息窗口)，显示当前mark位置信息
+        setPopupTipsInfo(marker);
+
+        Log.e(TAG,"End initOverlay");
+    }
+
+    //清除覆盖物
+    private void clearOverlay(){
+        baiduMap.clear();
+        marker = null;
+    }
+
+    //覆盖物拖拽监听器
+    public class MyMarkerDragListener implements BaiduMap.OnMarkerDragListener {
+
+        @Override
+        public void onMarkerDrag(Marker marker) {
+
+        }
+
+        //拖拽结束，调用方法，弹出View(气泡，意即在地图中显示一个信息窗口)，显示当前mark位置信息
+        @Override
+        public void onMarkerDragEnd(Marker marker) {
+            setPopupTipsInfo(marker);
+        }
+
+        @Override
+        public void onMarkerDragStart(Marker marker) {
+
+        }
+    }
+
+    //覆盖物点击监听器
+    public class MyMarkerClickListener implements BaiduMap.OnMarkerClickListener {
+
+        @Override
+        public boolean onMarkerClick(Marker marker) {
+            //调用方法,弹出View(气泡，意即在地图中显示一个信息窗口)，显示当前mark位置信息
+            setPopupTipsInfo(marker);
+            return false;
+        }
+    }
+
+    //想根据Mark中的经纬度信息，获取当前的位置语义化结果，需要使用地理编码查询和地理反编码请求
+    //在地图中显示一个信息窗口
+    private void setPopupTipsInfo(Marker marker){
+        //获取当前经纬度信息
+        final LatLng latLng = marker.getPosition();
+        final String[] addr = new String[1];
+        //实例化一个地理编码查询对象
+        GeoCoder geoCoder = GeoCoder.newInstance();
+        //为地理编码查询对象设置一个请求结果监听器
+        geoCoder.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
+            @Override
+            public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
+
+                Log.e(TAG, "地理编码信息 ---> \nLocation : " + geoCodeResult.getLocation()
+                        + "\ntoString : " + geoCodeResult.toString()
+                        + "\ndescribeContents : " + geoCodeResult.describeContents());
+            }
+
+            //当获取到反编码信息结果的时候会调用
+            @Override
+            public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
+                //获取地理反编码位置信息
+                addr[0] = reverseGeoCodeResult.getAddress();
+                //获取地址的详细内容对象，此类表示地址解析结果的层次化地址信息。
+                ReverseGeoCodeResult.AddressComponent addressDetail = reverseGeoCodeResult.getAddressDetail();
+                Log.e(TAG, "反地理编码信息 ---> \nAddress : " + addr[0]
+                        + "\nBusinessCircle : " + reverseGeoCodeResult.getBusinessCircle()//位置所属商圈名称
+                        + "\ncity : " + addressDetail.city  //所在城市名称
+                        + "\ndistrict : " + addressDetail.district  //区县名称
+                        + "\nprovince : " + addressDetail.province  //省份名称
+                        + "\nstreet : " + addressDetail.street      //街道名
+                        + "\nstreetNumber : " + addressDetail.streetNumber);//街道（门牌）号码
+
+                StringBuilder poiInfoBuilder = new StringBuilder();
+                //poiInfo信息
+                List<PoiInfo> poiInfoList = reverseGeoCodeResult.getPoiList();
+                if(poiInfoList != null) {
+                    poiInfoBuilder.append("\nPoilist size : " + poiInfoList.size());
+                    for (PoiInfo p : poiInfoList) {
+                        poiInfoBuilder.append("\n\taddress: " + p.address);//地址信息
+                        poiInfoBuilder.append(" name: " + p.name + " postCode: " + p.postCode);//名称、邮编
+                        //还有其他的一些信息，我这里就不打印了，请参考API
+                    }
+                }
+                Log.e(TAG,"poiInfo --> " + poiInfoBuilder.toString());
+
+                //动态创建一个View用于显示位置信息
+                Button button = new Button(getApplicationContext());
+                button.setTextColor(Color.BLACK);
+                button.setPadding(10,0 ,10,0);
+                //设置view是背景图片
+                button.setBackgroundResource(R.drawable.location_tips);
+                //设置view的内容（位置信息）
+                button.setText(poiInfoList.get(0).name + "\n" + addr[0]);
+                //在地图中显示一个信息窗口，可以设置一个View作为该窗口的内容，也可以设置一个 BitmapDescriptor 作为该窗口的内容
+                InfoWindow infoWindow = new InfoWindow(BitmapDescriptorFactory.fromView(button), latLng, -47, new InfoWindow.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick() {
+                        //当InfoWindow被点击后隐藏
+                        baiduMap.hideInfoWindow();
+                    }
+                });
+                //显示信息窗口
+                baiduMap.showInfoWindow(infoWindow);
+            }
+        });
+        //发起反地理编码请求
+        geoCoder.reverseGeoCode(new ReverseGeoCodeOption().location(latLng));
     }
 
     private void getViews(){
+        recyclerView = findViewById(R.id.transitRecyclerView);
         btnMoreRoutePlan = findViewById(R.id.btn_more_route_plan);
         mapView = findViewById(R.id.mapView);
         baiduMap = mapView.getMap();
@@ -122,6 +288,9 @@ public class MapRouteActivity extends AppCompatActivity {
      *  @Description: 驾车路线规划
      */
     private void DrivingRoutePlan(){
+        option = new DrivingRoutePlanOption();
+        //默认时间优先策略
+//        option.policy(DrivingRoutePlanOption.DrivingPolicy.ECAR_TIME_FIRST);
         routePlanSearch = RoutePlanSearch.newInstance();
         //创建路线规划结果监听器
         OnGetRoutePlanResultListener listener = new OnGetRoutePlanResultListener() {
@@ -146,24 +315,35 @@ public class MapRouteActivity extends AppCompatActivity {
                     Toast.makeText(MapRouteActivity.this, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
                     return;
                 }
-//                if (drivingRouteResult.error == SearchResult.ERRORNO.AMBIGUOUS_ROURE_ADDR) {
-                    // 起终点或途经点地址有岐义，通过以下接口获取建议查询信息
-//                    drivingRouteResult.getSuggestAddrInfo();
-//                    return;
-//                }
                 if(drivingRouteResult.error == SearchResult.ERRORNO.NO_ERROR){
-                    baiduMap.clear();
-                    //创建DrivingRouteOverlay实例
-                    DrivingRouteOverlay overlay = new DrivingRouteOverlay(baiduMap);
                     if (drivingRouteResult.getRouteLines().size() > 0) {
-                        //获取路径规划数据,(以返回的第一条路线为例）
-                        //为DrivingRouteOverlay实例设置数据
+                        //横向列表
+                        LinearLayoutManager manager = new LinearLayoutManager(getApplicationContext());
+                        manager.setOrientation(RecyclerView.HORIZONTAL);
+                        recyclerView.setLayoutManager(manager);
+                        //设置适配器
+                        RouteLineAdapter adapter = new RouteLineAdapter(MapRouteActivity.this, drivingRouteResult.getRouteLines());
+                        adapter.setOnItemClickListener(new RouteLineAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(int position) {
+                                // 获取选中的路线
+                                baiduMap.clear();
+                                DrivingRouteOverlay overlay1 = new DrivingRouteOverlay(baiduMap);
+                                overlay1.setData(drivingRouteResult.getRouteLines().get(position));
+                                overlay1.addToMap();
+                                overlay1.zoomToSpan();
+                            }
+                        });
+                        recyclerView.setAdapter(adapter);
+                        baiduMap.clear();
+                        DrivingRouteOverlay overlay = new DrivingRouteOverlay(baiduMap);
                         overlay.setData(drivingRouteResult.getRouteLines().get(0));
                         //在地图上绘制DrivingRouteOverlay
                         overlay.addToMap();
                         overlay.zoomToSpan();
                     }
                 }
+
             }
 
             @Override
@@ -182,7 +362,7 @@ public class MapRouteActivity extends AppCompatActivity {
         LatLng en = new LatLng(data.getSearchLatitude(), data.getSearchLongitude());
         PlanNode stNode = PlanNode.withLocation(st);
         PlanNode enNode = PlanNode.withLocation(en);
-        routePlanSearch.drivingSearch((new DrivingRoutePlanOption()).from(stNode).to(enNode));
+        routePlanSearch.drivingSearch(option.from(stNode).to(enNode));
     }
 
     /**
@@ -214,6 +394,7 @@ public class MapRouteActivity extends AppCompatActivity {
         baiduMap.setMyLocationEnabled(false);
         mapView.onDestroy();
         mapView = null;
+        clearOverlay();
         super.onDestroy();
     }
 
