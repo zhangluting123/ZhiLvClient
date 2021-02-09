@@ -13,141 +13,94 @@
         app:cardElevation="1dp">
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="280dp"
+            android:layout_height="150dp"
+            android:padding="14dp"
             android:orientation="vertical"
             android:paddingBottom="10dp"
-            android:layout_gravity="center">
-            <RelativeLayout
-                android:id="@+id/left"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:orientation="horizontal">
-                <LinearLayout
-                    android:layout_marginTop="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true">
-                    <ImageView
-                        android:id="@+id/iv_scene"
-                        android:layout_width="180dp"
-                        android:layout_height="200dp"
-                        android:scaleType="centerCrop" />
-                </LinearLayout>
-                <RelativeLayout
-                    android:layout_alignParentRight="true"
-                    android:layout_width="130dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="10dp">
-                    <TextView
-                        android:id="@+id/tv_scene_place"
-                        android:maxLines="1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:text="pet name"
-                        android:textColor="@android:color/black"/>
-                    <TextView
-                        android:id="@+id/tv_scene_content"
-                        android:layout_below="@id/tv_scene_place"
-                        android:layout_marginTop="10dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="12sp"
-                        android:maxLines="10"
-                        android:ellipsize="end"
-                        android:text="测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试从删除参数删除参数从是测试测试 "/>
-                </RelativeLayout>
-            </RelativeLayout>
+            android:gravity="center">
 
-            <RelativeLayout
-                android:id="@+id/right"
+            <ImageView
+                android:id="@+id/iv_scene_path"
+                android:layout_width="130dp"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/img_default"/>
+            <LinearLayout
+                android:layout_toRightOf="@id/iv_scene_path"
+                android:layout_alignParentRight="true"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:orientation="horizontal">
-                <LinearLayout
-                    android:layout_marginTop="10dp"
+                android:layout_marginLeft="14dp"
+                android:layout_marginBottom="10dp">
+                <TextView
+                    android:id="@+id/tv_scene_place"
+                    android:maxLines="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true">
-                    <ImageView
-                        android:id="@+id/iv_scene2"
-                        android:layout_width="180dp"
-                        android:layout_height="200dp"
-                        android:scaleType="centerCrop" />
-                </LinearLayout>
-                <RelativeLayout
-                    android:layout_alignParentLeft="true"
-                    android:layout_width="150dp"
+                    android:textSize="14sp"
+                    android:text="scene name"
+                    android:textColor="@android:color/black"/>
+                <View
+                    android:layout_marginTop="2dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/brown_light" />
+                <TextView
+                    android:id="@+id/tv_scene_address"
+                    android:layout_marginTop="4dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="10dp">
+                    android:textSize="12sp"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:text="address"/>
+                <TextView
+                    android:id="@+id/tv_scene_far"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/brown_deep"
+                    android:textSize="10sp"
+                    android:text="距离30千米"/>
+                <LinearLayout
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_marginRight="6dp"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:src="@mipmap/logo_ticket"/>
                     <TextView
-                        android:id="@+id/tv_scene_place_2"
-                        android:maxLines="1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp"
-                        android:text="pet name"
-                        android:textColor="@android:color/black"/>
-                    <TextView
-                        android:id="@+id/tv_scene_content2"
-                        android:layout_below="@id/tv_scene_place_2"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginRight="10dp"
+                        android:id="@+id/tv_scene_ticket"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="12sp"
-                        android:maxLines="8"
-                        android:ellipsize="end"
-                        android:text="测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试从删除参数删除参数从是测试测试 "/>
-                </RelativeLayout>
-            </RelativeLayout>
-            <RelativeLayout
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true">
-                <ImageView
-                    android:id="@+id/iv_share_scene"
-                    android:layout_marginRight="20dp"
-                    android:layout_width="21dp"
-                    android:layout_height="21dp"
-                    android:src="@drawable/share"/>
-                <RelativeLayout
-                    android:id="@+id/rl_love"
-                    android:layout_toRightOf="@id/iv_share_scene"
-                    android:layout_marginRight="16dp"
-                    android:layout_width="32dp"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:id="@+id/tv_love_count"
-                        android:layout_alignParentRight="true"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@android:color/black"
-                        android:textSize="6sp"
-                        android:text="7898"/>
+                        android:textColor="@color/MyThemeColor"
+                        android:textSize="13sp"
+                        android:text="ticket"/>
+                </LinearLayout>
+                 <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                     android:gravity="center"
+                    android:orientation="horizontal">
                     <ImageView
-                        android:id="@+id/iv_love"
-                        android:tag="noselected"
-                        android:layout_width="21dp"
-                        android:layout_height="21dp"
-                        android:src="@drawable/good_noselected"/>
-                </RelativeLayout>
-                <ImageView
-                    android:id="@+id/iv_comment"
-                    android:layout_toRightOf="@id/rl_love"
-                    android:layout_width="21dp"
-                    android:layout_height="21dp"
-                    android:src="@drawable/comment"/>
-            </RelativeLayout>
+                        android:layout_marginRight="6dp"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:src="@mipmap/logo_clock"/>
+                    <TextView
+                        android:id="@+id/tv_scene_openTime"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/blue"
+                        android:textSize="13sp"
+                        android:text="open Time"/>
+                 </LinearLayout>
+            </LinearLayout>
         </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>

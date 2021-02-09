@@ -6,5 +6,9 @@
             android:id="@+id/menu_update"
             android:title="编辑"
             tools:ignore="AppCompatResource"/>
+        <item
+            android:id="@+id/share"
+            android:title="分享"
+            tools:ignore="AppCompatResource"/>
     </group>
 </menu>

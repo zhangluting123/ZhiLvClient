@@ -3,13 +3,17 @@ package cn.edu.hebtu.software.zhilvdemo.DetailActivity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import cn.edu.hebtu.software.zhilvdemo.Adapter.SceneRecommendAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.StaggeredGridAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Data.Note;
+import cn.edu.hebtu.software.zhilvdemo.Data.Scene;
 import cn.edu.hebtu.software.zhilvdemo.Fragment.Home.LocalHomeFragment;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.Util.BaiduMapUtil.DistanceUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.BaiduMapUtil.PoiOverlay;
 import cn.edu.hebtu.software.zhilvdemo.Util.DensityUtil;
 import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
@@ -27,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListPopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
@@ -55,6 +60,7 @@ import com.baidu.mapapi.search.sug.OnGetSuggestionResultListener;
 import com.baidu.mapapi.search.sug.SuggestionResult;
 import com.baidu.mapapi.search.sug.SuggestionSearch;
 import com.baidu.mapapi.search.sug.SuggestionSearchOption;
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -76,10 +82,9 @@ public class DestinationDetailActivity extends AppCompatActivity {
     private RelativeLayout head;
     private SearchView searchView;
     private TextView location;
-    private TextView locationTitle;
-    private Button btnLocationDetail;
-    private TextView locationIntroduce;
     private RecyclerView recyclerView;
+    private RecyclerView sceneRecycler;
+    private SceneRecommendAdapter sceneAdapter;
 
     private TextureMapView mapView;
     private BaiduMap baiduMap;
@@ -89,6 +94,7 @@ public class DestinationDetailActivity extends AppCompatActivity {
     private StaggeredGridAdapter adapter;
 
     private List<Note> mDatas;
+    private List<Scene> scenes;
 
     private MyApplication data;
     private List<Map<String,String>> sugList;
@@ -105,6 +111,10 @@ public class DestinationDetailActivity extends AppCompatActivity {
                 case 1002:
                     mDatas = (List<Note>) msg.obj;
                     adapter.replaceAll(mDatas);
+                    break;
+                case 1003:
+                    scenes = (List<Scene>)msg.obj;
+                    sceneAdapter.refresh(scenes);
                     break;
             }
         }
@@ -128,16 +138,13 @@ public class DestinationDetailActivity extends AppCompatActivity {
         head = findViewById(R.id.des_head);
         searchView = findViewById(R.id.searchView);
         location = findViewById(R.id.des_location);
-        locationTitle = findViewById(R.id.des_tv_location_title);
-        locationIntroduce = findViewById(R.id.des_tv_location_introduce);
-        btnLocationDetail = findViewById(R.id.des_detail_btn_locationDetail);
         recyclerView = findViewById(R.id.des_detail_recycler);
+        sceneRecycler = findViewById(R.id.scene_recycler);
         mapView = findViewById(R.id.mapView);
         baiduMap = mapView.getMap();
     }
     private void initView(){
         getViews();
-//        initData();
         //显示俯视图
         showOverLook();
         //比例尺操作
@@ -181,17 +188,23 @@ public class DestinationDetailActivity extends AppCompatActivity {
         });
         recyclerView.setAdapter(adapter);
 
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager.setOrientation(RecyclerView.HORIZONTAL);
+        sceneRecycler.setLayoutManager(manager);
+        sceneAdapter = new SceneRecommendAdapter(DestinationDetailActivity.this, R.layout.item_scene_recommend, scenes);
+        sceneAdapter.setOnItemClickListener(new SceneRecommendAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Intent intent = new Intent(DestinationDetailActivity.this, SceneDetailActivity.class);
+                intent.putExtra("scene", scenes.get(position));
+                startActivity(intent);
+            }
+        });
+        sceneRecycler.setAdapter(sceneAdapter);
     }
 
 
     private void registListener(){
-        btnLocationDetail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(DestinationDetailActivity.this, SceneDetailActivity.class);
-                startActivity(intent);
-            }
-        });
         searchView.setImeOptions(EditorInfo.IME_ACTION_SEARCH);//让键盘的回车键设置成搜索
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -448,7 +461,38 @@ public class DestinationDetailActivity extends AppCompatActivity {
         }
     }
 
+    class GetSceneThread extends Thread{
+        @Override
+        public void run() {
+            try {
+                Message msg = Message.obtain();
+                if(DetermineConnServer.isConnByHttp(getApplicationContext())) {
+                    URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/recommend/scene/place?title="+ data.getSearchText());
+                    URLConnection conn = url.openConnection();
+                    InputStream in = conn.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                    String info = reader.readLine();
+                    Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                    Type type = new TypeToken<List<Scene>>(){}.getType();
+                    List<Scene> scene1= gson.fromJson(info,type);
+                    msg.what = 1003;
+                    msg.obj = scene1;
+                }else {
+                    msg.what = 1001;
+                    msg.obj = "未连接到服务器";
+                }
+                mHandler.sendMessage(msg);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void initDatas(){
+        Thread getScene = new GetSceneThread();
+        getScene.start();
         Thread thread = new GetListThread();
         thread.start();
     }

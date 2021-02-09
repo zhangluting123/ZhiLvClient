@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:navigationIcon="@mipmap/logo_back"
-            app:title="实用信息"
+            app:title="编辑景点"
             app:titleTextAppearance="@style/Toolbar.TitleText"/>
         <Button
             android:id="@+id/scene_btn_submit"
@@ -33,17 +33,33 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical">
+        <ImageView
+            android:id="@+id/scene_iv_path"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="fitXY"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingLeft="20dp"
             android:paddingRight="20dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:text="标题"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
             <EditText
                 android:id="@+id/scene_et_title"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
                 android:textColor="@color/black"
                 android:paddingTop="10dp"
-                android:textSize="18sp"
+                android:layout_marginBottom="20dp"
+                android:textSize="16sp"
                 android:text="抱犊寨"/>
             <TextView
                 android:layout_width="match_parent"
@@ -136,7 +152,8 @@
                 android:id="@+id/scene_et_costTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="3小时以上" />
+                android:text="3小时以上"
+                android:textSize="16sp"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -149,7 +166,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="0311-88781243"
-                android:textColor="@color/blue" />
+                android:textColor="@color/blue"
+                android:textSize="16sp"/>
 
 
             <LinearLayout
@@ -173,7 +191,9 @@
                 android:id="@+id/scene_et_website"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="40dp"/>
+                android:layout_marginBottom="40dp"
+                android:textSize="16sp"/>
+        </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

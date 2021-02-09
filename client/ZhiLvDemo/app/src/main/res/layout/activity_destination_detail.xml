@@ -53,40 +53,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-                <LinearLayout
-                    android:layout_margin="20dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-                        <TextView
-                            android:id="@+id/des_tv_location_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="20sp"
-                            android:textColor="@color/black"
-                            android:text="隆兴寺"/>
-                        <Button
-                            android:id="@+id/des_detail_btn_locationDetail"
-                            android:layout_alignParentRight="true"
-                            android:layout_width="wrap_content"
-                            android:layout_height="16dp"
-                            android:text="更多>>"
-                            android:textColor="@color/teal_700"
-                            android:background="#00000000"/>
-                    </RelativeLayout>
-
-                    <TextView
-                        android:id="@+id/des_tv_location_introduce"
-                        android:layout_marginTop="8dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxLines="4"
-                        android:ellipsize="end"
-                        android:text="隆兴寺，别名大佛寺，位于河北省石家庄市正定县城东门里街，原是东晋十六国时期后燕慕容熙的龙腾苑，公元586年（隋文帝开皇六年）在苑内改建寺院，时称龙藏寺，唐朝改为龙兴寺，清朝改为隆兴寺；是中国国内保存时代较早、规模较大而又保存完整的佛教寺院之一。"/>
-                </LinearLayout>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/scene_recycler"
+                    android:layout_width="wrap_content"
+                    android:layout_height="180dp"/>
                 <com.baidu.mapapi.map.TextureMapView
                     android:id="@+id/mapView"
                     android:layout_width="match_parent"

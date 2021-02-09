@@ -76,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
 
         data = (MyApplication)getApplication();
         data.setIp(getString(R.string.internet_ip));
+        //如果定位权限已经开启，则进行定位，否则开启权限，在权限回调成功后开启定位
+        if(PermissionUtil.openLocationPermission(this)){
+            locationOption();
+        }
 
         //判断是否第一次下载APP
         boolean isFirstIn = SharedUtil.getBoolean("isGuide", this,"isFirstIn",true);
@@ -86,10 +90,6 @@ public class MainActivity extends AppCompatActivity {
             data.setUser(getUserMsgLocal());
         }
 
-        //如果定位权限已经开启，则进行定位，否则开启权限，在权限回调成功后开启定位
-        if(PermissionUtil.openLocationPermission(this)){
-            locationOption();
-        }
         initView();
     }
 
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
         //打开GPS
         locationClientOption.setOpenGps(true);
         //设置定位间隔时间
-        locationClientOption.setScanSpan(1000 * 5);//10分钟
+        locationClientOption.setScanSpan(1000 * 5);//5秒定位
         SDKInitializer.setCoordType(CoordType.GCJ02);
         //设置定位模式:高精度模式
         locationClientOption.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);

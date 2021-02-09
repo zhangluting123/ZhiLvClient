@@ -39,7 +39,8 @@
         <activity android:name=".Activity.ChangePwdActivity" />
         <activity android:name=".Activity.ChangeEmailActivity" />
         <activity android:name=".Activity.ChangePhoneActivity" />
-        <activity android:name=".DetailActivity.EditSceneDetailActivity" />
+        <activity android:name=".DetailActivity.EditSceneDetailActivity"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity android:name=".DetailActivity.OtherUserInfoActivity" />
         <activity android:name=".Activity.ForgetPwdActivity" />
         <activity android:name=".Activity.LoginActivity" />

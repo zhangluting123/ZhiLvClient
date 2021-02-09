@@ -472,9 +472,9 @@ public class UpdateTravelActivity extends AppCompatActivity {
         // 设置图片压缩质量
 //        options.setCompressionQuality(100);
         //设置toolbar颜色
-        options.setToolbarColor(ActivityCompat.getColor(activity, R.color.MyThemeColor));
+        options.setToolbarColor(ActivityCompat.getColor(activity, R.color.brown_deep));
         //设置状态栏颜色
-        options.setStatusBarColor(ActivityCompat.getColor(activity, R.color.MyThemeColor));
+        options.setStatusBarColor(ActivityCompat.getColor(activity, R.color.brown_deep));
         //是否能调整裁剪框
         options.setFreeStyleCropEnabled(true);
         //UCrop配置

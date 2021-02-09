@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListPopupWindow;
 import android.widget.RelativeLayout;
 
@@ -26,6 +25,7 @@ import com.baidu.mapapi.search.sug.SuggestionResult;
 import com.baidu.mapapi.search.sug.SuggestionSearch;
 import com.baidu.mapapi.search.sug.SuggestionSearchOption;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
@@ -47,6 +47,10 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SearchView;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import cn.edu.hebtu.software.zhilvdemo.Adapter.LocalSceneAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.Scene;
 import cn.edu.hebtu.software.zhilvdemo.Data.Topic;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.DestinationDetailActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.SceneDetailActivity;
@@ -70,10 +74,7 @@ public class DestinationFragment extends Fragment {
     private RelativeLayout head;
     private SearchView searchView;
     private TextView location;
-    private TextView scene1;
-    private TextView scene2;
-    private TextView scene3;
-    private TextView scene4;
+    private RecyclerView recyclerView;
     private Button btnMoreTopic;
     private RelativeLayout topic1;
     private TextView topicText1;
@@ -85,9 +86,11 @@ public class DestinationFragment extends Fragment {
     private SuggestionSearch suggestionSearch;
     private ListPopupWindow listPopupWindow;
     private boolean submitFlag = false;
+    private LocalSceneAdapter adapter;
 
     private List<Map<String,String>> sugList;
     private List<Topic> topics;
+    private List<Scene> scenes;
 
     @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler(){
@@ -99,10 +102,17 @@ public class DestinationFragment extends Fragment {
                     break;
                 case 1003:
                     topics = (List<Topic>) msg.obj;
-                    topicText1.setText(topics.get(0).getTitle());
-                    topicText2.setText(topics.get(1).getTitle());
+                    if(null != topics && topics.size() > 0){
+                        topicText1.setText(topics.get(0).getTitle());
+                    }
+                    if(null != topics && topics.size() > 1) {
+                        topicText2.setText(topics.get(1).getTitle());
+                    }
                     break;
-
+                case 1004:
+                    scenes = (List<Scene>) msg.obj;
+                    adapter.refresh(scenes);
+                    break;
             }
         }
     };
@@ -115,12 +125,12 @@ public class DestinationFragment extends Fragment {
             getViews();
             registListener();
             topicTwiceList();
+//            localScene();
         }
         data = (MyApplication)getActivity().getApplication();
         location.setText(data.getCity());
         searchView.clearFocus();
         searchView.setFocusable(false);
-
         ViewGroup parent = (ViewGroup) view.getParent();
         if(null != parent){
             parent.removeView(view);
@@ -133,10 +143,7 @@ public class DestinationFragment extends Fragment {
         head = view.findViewById(R.id.destination_head);
         searchView = view.findViewById(R.id.searchView);
         location = view.findViewById(R.id.destination_location);
-        scene1 = view.findViewById(R.id.destination_tv_scene1);
-        scene2 = view.findViewById(R.id.destination_tv_scene2);
-        scene3 = view.findViewById(R.id.destination_tv_scene3);
-        scene4 = view.findViewById(R.id.destination_tv_scene4);
+        recyclerView = view.findViewById(R.id.recyclerView);
         btnMoreTopic = view.findViewById(R.id.destination_btn_moreTopic);
         topic1 = view.findViewById(R.id.destination_rl_topic1);
         topicText1 = view.findViewById(R.id.destination_tv_topic1);
@@ -146,10 +153,6 @@ public class DestinationFragment extends Fragment {
 
     private void registListener(){
         CustomOnClickListener listener = new CustomOnClickListener();
-        scene1.setOnClickListener(listener);
-        scene2.setOnClickListener(listener);
-        scene3.setOnClickListener(listener);
-        scene4.setOnClickListener(listener);
         btnMoreTopic.setOnClickListener(listener);
         topic1.setOnClickListener(listener);
         topic2.setOnClickListener(listener);
@@ -182,6 +185,20 @@ public class DestinationFragment extends Fragment {
                 return false;
             }
         });
+
+        LinearLayoutManager manager = new LinearLayoutManager(getActivity());
+        manager.setOrientation(RecyclerView.HORIZONTAL);
+        recyclerView.setLayoutManager(manager);
+        adapter = new LocalSceneAdapter(getActivity(), scenes);
+        adapter.setOnItemClickListener(new LocalSceneAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Intent intent = new Intent(getActivity().getApplicationContext(), SceneDetailActivity.class);
+                intent.putExtra("scene", scenes.get(position));
+                startActivity(intent);
+            }
+        });
+        recyclerView.setAdapter(adapter);
     }
 
     class CustomOnClickListener implements View.OnClickListener{
@@ -189,32 +206,19 @@ public class DestinationFragment extends Fragment {
         public void onClick(View v) {
             Intent intent = null;
             switch (v.getId()){
-                case R.id.destination_tv_scene1:
-                    intent = new Intent(getActivity().getApplicationContext(), SceneDetailActivity.class);
-                    startActivity(intent);
-                    break;
-                case R.id.destination_tv_scene2:
-
-                    break;
-                case R.id.destination_tv_scene3:
-
-                    break;
-                case R.id.destination_tv_scene4:
-
-                    break;
                 case R.id.destination_btn_moreTopic:
                     intent = new Intent(getActivity().getApplicationContext(), ShowTopicActivity.class);
                     startActivity(intent);
                     break;
                 case R.id.destination_rl_topic1:
-                    if(null != topics){
+                    if(null != topics && topics.size()  > 0){
                         intent = new Intent(getActivity().getApplicationContext(), TopicDetailActivity.class);
                         intent.putExtra("topic", topics.get(0));
                         startActivity(intent);
                     }
                     break;
                 case R.id.destination_rl_topic2:
-                    if(null != topics){
+                    if(null != topics && topics.size()  > 1){
                         intent = new Intent(getActivity().getApplicationContext(), TopicDetailActivity.class);
                         intent.putExtra("topic", topics.get(1));
                         startActivity(intent);
@@ -319,10 +323,42 @@ public class DestinationFragment extends Fragment {
         }.start();
     }
 
+    private void localScene(){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    Message msg = Message.obtain();
+                    if(DetermineConnServer.isConnByHttp(getActivity().getApplicationContext())) {
+                        URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/recommend/scene/place?title=" + data.getCity());
+                        URLConnection conn = url.openConnection();
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                        String info = reader.readLine();
+                        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                        Type type = new TypeToken<List<Scene>>(){}.getType();
+                        List<Scene> list = gson.fromJson(info,type);
+                        msg.what = 1004;
+                        msg.obj = list;
+                    }else {
+                        msg.what = 1001;
+                        msg.obj = "未连接到服务器";
+                    }
+                    mHandler.sendMessage(msg);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         location.setText(data.getCity());
+        localScene();
         searchView.clearFocus();
         searchView.setFocusable(false);
     }
