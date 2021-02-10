@@ -11,8 +11,17 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +31,7 @@ import cn.edu.hebtu.software.zhilvdemo.Data.Video;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.OtherUserInfoActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
 
 
 /**
@@ -119,6 +129,9 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
                 public void onClick(View v) {
                     if(null != onItemClickListener){
                         onItemClickListener.onItemClick(getLayoutPosition());
+                        if(null != data.getUser()) {
+                            addViews(getLayoutPosition());
+                        }
                     }
                 }
             });
@@ -149,6 +162,9 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
                 public void onClick(View v) {
                     if(null != onItemClickListener){
                         onItemClickListener.onItemClick(getLayoutPosition());
+                        if(null != data.getUser()) {
+                            addViews(getLayoutPosition());
+                        }
                     }
                 }
             });
@@ -192,6 +208,36 @@ public class StaggeredGridAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.mDatas = mDatas;
         notifyDataSetChanged();
 //        notifyItemRangeInserted(0, 3);
+    }
+
+    /**
+     *  @author: 张璐婷
+     *  @time: 2021/2/10  15:54
+     *  @Description: 添加浏览量
+     */
+    private void addViews(int position){
+        new Thread(){
+            @Override
+            public void run() {
+                if(DetermineConnServer.isConnByHttp(context)){
+                    try {
+                        String str = null;
+                        if(mDatas.get(position).isFlag()){
+                            str = "http://"+data.getIp()+":8080/ZhiLvProject/views/add?userId="+data.getUser().getUserId()+"&travelsId="+mDatas.get(position).getTravels().getTravelsId();
+                        }else{
+                            str = "http://"+data.getIp()+":8080/ZhiLvProject/views/add?userId="+data.getUser().getUserId()+"&videoId="+mDatas.get(position).getVideo().getVideoId();
+                        }
+                        URL url = new URL(str);
+                        URLConnection conn = url.openConnection();
+                        conn.getInputStream();
+                    }catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
     }
 }
 

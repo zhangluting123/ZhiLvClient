@@ -11,6 +11,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -19,6 +23,7 @@ import cn.edu.hebtu.software.zhilvdemo.Data.Scene;
 import cn.edu.hebtu.software.zhilvdemo.R;
 import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
 import cn.edu.hebtu.software.zhilvdemo.Util.BaiduMapUtil.DistanceUtil;
+import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
 
 /**
  * @ProjectName:    ZhiLv
@@ -87,6 +92,9 @@ public class SceneRecommendAdapter extends RecyclerView.Adapter<SceneRecommendAd
                 @Override
                 public void onClick(View v) {
                     if(null != onItemClickListener){
+                        if(null != data.getUser()){
+                            addViews(getLayoutPosition());
+                        }
                         onItemClickListener.onItemClick(getLayoutPosition());
                     }
                 }
@@ -115,4 +123,28 @@ public class SceneRecommendAdapter extends RecyclerView.Adapter<SceneRecommendAd
         notifyDataSetChanged();
     }
 
+    /**
+     *  @author: 张璐婷
+     *  @time: 2021/2/10  15:54
+     *  @Description: 添加浏览量
+     */
+    private void addViews(int position){
+        new Thread(){
+            @Override
+            public void run() {
+                if(DetermineConnServer.isConnByHttp(context)){
+                    try {
+                        String str = "http://"+data.getIp()+":8080/ZhiLvProject/views/add?userId="+data.getUser().getUserId()+"&videoId="+mDatas.get(position).getSceneId();
+                        URL url = new URL(str);
+                        URLConnection conn = url.openConnection();
+                        conn.getInputStream();
+                    }catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.start();
+    }
 }
