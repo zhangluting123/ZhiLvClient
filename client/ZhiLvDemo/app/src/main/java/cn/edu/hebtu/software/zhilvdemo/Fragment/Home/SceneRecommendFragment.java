@@ -124,7 +124,13 @@ public class SceneRecommendFragment extends Fragment {
             try {
                 Message msg = Message.obtain();
                 if(DetermineConnServer.isConnByHttp(getActivity().getApplicationContext())) {
-                    URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/recommend/scene/list");
+                    String str = null;
+                    if(null == data.getUser()){
+                        str = "http://" + data.getIp() + ":8080/ZhiLvProject/recommend/scene/getRecommendList";
+                    }else{
+                        str = "http://" + data.getIp() + ":8080/ZhiLvProject/recommend/scene/getRecommendList?userId="+data.getUser().getUserId();
+                    }
+                    URL url = new URL(str);
                     URLConnection conn = url.openConnection();
                     InputStream in = conn.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));

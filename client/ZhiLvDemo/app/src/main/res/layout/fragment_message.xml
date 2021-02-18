@@ -87,7 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:text="私信"/>
+                    android:text="问题反馈"/>
                 <ImageView
                     android:layout_alignParentRight="true"
                     android:layout_width="30dp"

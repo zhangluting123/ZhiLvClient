@@ -1,5 +1,6 @@
 package cn.edu.hebtu.software.zhilvdemo.Fragment.Home;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -7,25 +8,40 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.MyAttentionListAdapter;
+import cn.edu.hebtu.software.zhilvdemo.Data.Scene;
 import cn.edu.hebtu.software.zhilvdemo.Data.User;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.OtherUserInfoActivity;
 import cn.edu.hebtu.software.zhilvdemo.R;
+import cn.edu.hebtu.software.zhilvdemo.Setting.MyApplication;
+import cn.edu.hebtu.software.zhilvdemo.Util.DetermineConnServer;
 
 /**
  * @ProjectName:    ZhiLv
@@ -35,20 +51,40 @@ import cn.edu.hebtu.software.zhilvdemo.R;
  * @Version:        1.0
  */
 public class UserRecommendFragment extends Fragment {
-    private List<User> mDatas;
+    private List<User> mDatas = new ArrayList<>();
     private View view;
+    private MyAttentionListAdapter adapter;
+    private MyApplication data;
+    @SuppressLint("HandlerLeak")
+    private final Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            switch (msg.what){
+                case 1001:
+                    Toast.makeText(getActivity().getApplicationContext(), (CharSequence)msg.obj, Toast.LENGTH_SHORT).show();
+                    break;
+                case 1002:
+                    mDatas = (List<User>)msg.obj;
+                    adapter.replaceAll(mDatas);
+                    break;
+            }
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_user_recommend, container, false);
-//        initData();
-//        initView();
-
+        data = (MyApplication) getActivity().getApplication();
+        initView();
+        initData();
         return view;
     }
 
     private void initData(){
-
+        if(null != data.getUser()){
+            Thread thread = new GetListThread();
+            thread.start();
+        }
     }
 
     private void initView(){
@@ -60,14 +96,13 @@ public class UserRecommendFragment extends Fragment {
         rl.setLayoutManager(manager);
         //设置适配器
         Log.i("UserRecommendPManager", getParentFragment()+"");
-        MyAttentionListAdapter adapter = new MyAttentionListAdapter(getActivity(), R.layout.item_my_fans_list, mDatas,false);
+        adapter = new MyAttentionListAdapter(getActivity(), R.layout.item_my_fans_list, mDatas,false);
         adapter.setOnItemClickListener(new MyAttentionListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
                 Intent intent = new Intent(getActivity().getApplicationContext(), OtherUserInfoActivity.class);
                 intent.putExtra("other", mDatas.get(position));
                 startActivity(intent);
-                Toast.makeText(getActivity().getApplicationContext(), "User-Recommend-" + mDatas.get(position), Toast.LENGTH_SHORT).show();
             }
         });
         rl.setAdapter(adapter);
@@ -79,7 +114,7 @@ public class UserRecommendFragment extends Fragment {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-//                        adapter.replaceAll(getData());
+                        initData();
                         refreshLayout.finishRefresh();
                     }
                 },1000);
@@ -87,12 +122,33 @@ public class UserRecommendFragment extends Fragment {
         });
     }
 
-//    private List<String> getData(){
-//        for (int i = 0; i < 6; i++)
-//        {
-//            mDatas.add( i,"ADD -> " + i);
-//        }
-//        return mDatas;
-//    }
+    class GetListThread extends Thread{
+        @Override
+        public void run() {
+            try {
+                Message msg = Message.obtain();
+                if(DetermineConnServer.isConnByHttp(getActivity().getApplicationContext())) {
+                    URL url = new URL("http://" + data.getIp() + ":8080/ZhiLvProject/recommend/user/getRecommendList?userId="+data.getUser().getUserId());
+                    URLConnection conn = url.openConnection();
+                    InputStream in = conn.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in,"utf-8"));
+                    String info = reader.readLine();
+                    Gson gson = new Gson();
+                    Type type = new TypeToken<List<User>>(){}.getType();
+                    List<User> list = gson.fromJson(info,type);
+                    msg.what = 1002;
+                    msg.obj = list;
+                }else {
+                    msg.what = 1001;
+                    msg.obj = "未连接到服务器";
+                }
+                mHandler.sendMessage(msg);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }
