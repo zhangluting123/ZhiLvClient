@@ -52,8 +52,6 @@ public class EditVideoTask extends AsyncTask<String, Void, String> {
             builder.addFormDataPart("title", video.getTitle())
                     .addFormDataPart("content", video.getContent())
                     .addFormDataPart("location", video.getLocation())
-                    .addFormDataPart("duration", video.getDuration())
-                    .addFormDataPart("size", video.getSize())
                     .addFormDataPart("userId", video.getUser().getUserId()+"");
             if(null != video.getTopic()){
                 builder.addFormDataPart("topicId", video.getTopic().getTopicId()+"");
@@ -78,6 +76,8 @@ public class EditVideoTask extends AsyncTask<String, Void, String> {
                 }
             }
             if(null != video.getPath()){
+                builder.addFormDataPart("duration", video.getDuration())
+                        .addFormDataPart("size", video.getSize());
                 //以二进制流的方式
                 MediaType type = MediaType.parse("application/octet-stream");
                 //传视频
