@@ -26,6 +26,7 @@
         tools:ignore="ProtectedPermissions" />
 
     <application
+        android:usesCleartextTraffic="true"
         android:name=".Setting.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

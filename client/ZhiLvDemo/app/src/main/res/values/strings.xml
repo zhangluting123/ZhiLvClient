@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">知旅</string>
     <!--zlt本地测试ip-->
-    <string name="internet_ip" translatable="false">192.168.2.167</string>
+<!--    <string name="internet_ip" translatable="false">192.168.2.167</string>-->
+
+    <!--zmr本地测试ip-->
+    <string name="internet_ip" translatable="false">192.168.1.107</string>
+<!--    <string name="internet_ip" translatable="false">10.0.2.2</string>-->
+
 </resources>

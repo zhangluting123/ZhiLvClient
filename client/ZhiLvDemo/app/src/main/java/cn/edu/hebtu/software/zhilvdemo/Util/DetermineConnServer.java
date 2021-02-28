@@ -27,7 +27,7 @@ public class DetermineConnServer {
         try {
             url = new URL("http://"+ context.getResources().getString(R.string.internet_ip)+":8080/ZhiLvProject/");
             conn = (HttpURLConnection)url.openConnection();
-            conn.setConnectTimeout(500);//检测时长
+            conn.setConnectTimeout(2000);//检测时长
 
             if(conn.getResponseCode()==200){
                 isConn = true;
