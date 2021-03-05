@@ -37,6 +37,7 @@ import cn.edu.hebtu.software.zhilvdemo.Activity.MainActivity;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.MessageCommentAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.MyAttentionListAdapter;
 import cn.edu.hebtu.software.zhilvdemo.Data.MailMyComment;
+import cn.edu.hebtu.software.zhilvdemo.DetailActivity.AuditActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.NotificationActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.PraisedActivity;
 import cn.edu.hebtu.software.zhilvdemo.DetailActivity.SubmitProblemActivity;
@@ -55,6 +56,7 @@ public class MessageFragment extends Fragment {
     private RelativeLayout notification;
     private RelativeLayout good;
     private RelativeLayout chat;
+    private RelativeLayout audit;
     private View view;
     private MessageCommentAdapter adapter;
     private List<MailMyComment> myComments;
@@ -102,9 +104,11 @@ public class MessageFragment extends Fragment {
         notification = view.findViewById(R.id.message_rl_notification);
         good = view.findViewById(R.id.message_rl_good);
         chat = view.findViewById(R.id.message_rl_chat);
+        audit = view.findViewById(R.id.message_rl_audit);
         notification.setOnClickListener(listener);
         good.setOnClickListener(listener);
         chat.setOnClickListener(listener);
+        audit.setOnClickListener(listener);
     }
 
 
@@ -123,6 +127,10 @@ public class MessageFragment extends Fragment {
                     break;
                 case R.id.message_rl_chat:
                     intent = new Intent(getActivity(), SubmitProblemActivity.class);
+                    startActivity(intent);
+                    break;
+                case R.id.message_rl_audit:
+                    intent = new Intent(getActivity(), AuditActivity.class);
                     startActivity(intent);
                     break;
             }

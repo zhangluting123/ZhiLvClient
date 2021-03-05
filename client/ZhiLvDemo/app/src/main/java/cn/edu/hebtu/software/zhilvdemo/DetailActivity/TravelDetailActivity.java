@@ -3,6 +3,7 @@ package cn.edu.hebtu.software.zhilvdemo.DetailActivity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
@@ -19,6 +20,7 @@ import cn.edu.hebtu.software.zhilvdemo.Util.SoftKeyBoardListener;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -273,7 +275,26 @@ public class TravelDetailActivity extends AppCompatActivity implements ViewPager
                         finish();
                         break;
                     case R.id.menu_delete:
-                        deleteTravels();
+                        AlertDialog.Builder normalDialog =
+                                new AlertDialog.Builder(TravelDetailActivity.this);
+                        normalDialog.setIcon(R.mipmap.logo_clock);
+                        normalDialog.setTitle("知旅提示");
+                        normalDialog.setMessage("您确定要删除游记吗?");
+                        normalDialog.setPositiveButton("确定",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        deleteTravels();
+                                    }
+                                });
+                        normalDialog.setNegativeButton("取消",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                });
+
+                        normalDialog.show();
                         break;
                 }
                 return true;

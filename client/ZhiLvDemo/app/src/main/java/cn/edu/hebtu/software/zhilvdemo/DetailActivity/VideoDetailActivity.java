@@ -2,6 +2,7 @@ package cn.edu.hebtu.software.zhilvdemo.DetailActivity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import cn.edu.hebtu.software.zhilvdemo.Adapter.CommentAdapter;
@@ -18,6 +19,7 @@ import cn.jzvd.JZVideoPlayerStandard;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Sensor;
@@ -252,7 +254,26 @@ public class VideoDetailActivity extends AppCompatActivity {
                         startActivity(intent);
                         break;
                     case R.id.menu_delete:
-                        deleteVideo();
+                        AlertDialog.Builder normalDialog =
+                                new AlertDialog.Builder(VideoDetailActivity.this);
+                        normalDialog.setIcon(R.mipmap.logo_clock);
+                        normalDialog.setTitle("知旅提示");
+                        normalDialog.setMessage("您确定要删除视频吗?");
+                        normalDialog.setPositiveButton("确定",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        deleteVideo();
+                                    }
+                                });
+                        normalDialog.setNegativeButton("取消",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                });
+
+                        normalDialog.show();
                         break;
                 }
                 return true;

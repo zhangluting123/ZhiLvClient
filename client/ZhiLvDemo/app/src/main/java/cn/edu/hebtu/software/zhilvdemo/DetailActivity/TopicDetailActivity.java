@@ -76,7 +76,7 @@ public class TopicDetailActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.topic_detail_recycler);
         //准备布局管理器
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
+        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(1,StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new StaggeredGridAdapter(mDatas,this);
         adapter.setOnItemClickListener(new StaggeredGridAdapter.OnItemClickListener() {

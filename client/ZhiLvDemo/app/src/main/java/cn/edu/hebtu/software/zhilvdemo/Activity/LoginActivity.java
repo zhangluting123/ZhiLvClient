@@ -118,7 +118,11 @@ public class LoginActivity extends AppCompatActivity {
                     isPhone = JudgeStrUtil.isPhone(inputPhoneOrEmail.getText().toString().trim());
                     isEmail = JudgeStrUtil.isEmail(inputPhoneOrEmail.getText().toString().trim());
                     String pwd = inputPassword.getText().toString().trim();
-                    login(pwd);
+                    if(!isPhone && !isEmail ){
+                        Toast.makeText(getApplicationContext(), "账号格式有误", Toast.LENGTH_SHORT).show();
+                    }else {
+                        login(pwd);
+                    }
                     break;
                 case R.id.tv_fgpwd:
                     intent = new Intent(LoginActivity.this, ForgetPwdActivity.class);

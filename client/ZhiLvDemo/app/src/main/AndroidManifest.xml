@@ -26,21 +26,23 @@
         tools:ignore="ProtectedPermissions" />
 
     <application
-        android:usesCleartextTraffic="true"
         android:name=".Setting.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ZhiLvDemo">
-        <activity android:name=".DetailActivity.SubmitProblemActivity"/>
+        android:theme="@style/Theme.ZhiLvDemo"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".DetailActivity.AuditActivity"></activity>
+        <activity android:name=".DetailActivity.SubmitProblemActivity" />
         <activity android:name=".DetailActivity.NotificationActivity" />
         <activity android:name=".DetailActivity.PraisedActivity" />
         <activity android:name=".Activity.ChangePwdActivity" />
         <activity android:name=".Activity.ChangeEmailActivity" />
         <activity android:name=".Activity.ChangePhoneActivity" />
-        <activity android:name=".DetailActivity.EditSceneDetailActivity"
+        <activity
+            android:name=".DetailActivity.EditSceneDetailActivity"
             android:windowSoftInputMode="adjustPan|stateHidden" />
         <activity android:name=".DetailActivity.OtherUserInfoActivity" />
         <activity android:name=".Activity.ForgetPwdActivity" />

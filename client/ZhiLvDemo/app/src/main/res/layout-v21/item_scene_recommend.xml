@@ -80,6 +80,8 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/MyThemeColor"
                         android:textSize="13sp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
                         android:text="ticket"/>
                 </LinearLayout>
                  <LinearLayout
@@ -98,6 +100,8 @@
                         android:layout_height="wrap_content"
                         android:textColor="@color/blue"
                         android:textSize="13sp"
+                        android:maxLines="1"
+                        android:ellipsize="end"
                         android:text="open Time"/>
                  </LinearLayout>
             </LinearLayout>

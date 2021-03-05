@@ -20,6 +20,7 @@
             android:orientation="vertical">
             <TextView
                 android:layout_margin="20dp"
+                android:layout_centerInParent="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -88,6 +89,29 @@
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:text="问题反馈"/>
+                <ImageView
+                    android:layout_alignParentRight="true"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@mipmap/logo_come"/>
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/message_rl_audit"
+                android:paddingTop="30dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:id="@+id/audit"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@mipmap/logo_audit" />
+                <TextView
+                    android:layout_toRightOf="@id/audit"
+                    android:layout_marginLeft="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="审核记录"/>
                 <ImageView
                     android:layout_alignParentRight="true"
                     android:layout_width="30dp"
