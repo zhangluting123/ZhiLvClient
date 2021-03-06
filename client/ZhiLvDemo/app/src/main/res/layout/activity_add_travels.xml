@@ -48,15 +48,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
-            android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
             <LinearLayout
+                android:paddingLeft="20dp"
+                android:paddingBottom="10dp"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="@color/brown_trans">
                 <HorizontalScrollView
                     android:id="@+id/parent"
                     android:layout_width="match_parent"
@@ -85,46 +87,59 @@
             </LinearLayout>
             <Button
                 android:id="@+id/add_btn_more_detail"
+                android:paddingRight="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_height="40dp"
+                android:gravity="center|right"
                 android:background="@null"
                 android:textColor="@color/brown_deep"
-                android:text="添加详细信息>>"/>
+                android:text="添加更多详细信息>>"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            <ImageView
+                android:layout_marginLeft="4dp"
+                android:layout_alignParentLeft="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/add_travels_title"/>
             <LinearLayout
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="@drawable/edit_background">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/add_travels_title"/>
                     <EditText
                         android:id="@+id/add_travels_et_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
+                        android:background="@null"
                         android:textSize="13sp"
                         android:hint="标题 (不要超过20字)"
                         android:maxLength="20"
-                        android:maxLines="1"
-                        android:background="@drawable/edit_background"/>
+                        android:maxLines="1" />
                 </LinearLayout>
+                <View
+                    android:layout_marginTop="4dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/brown_deep"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="10dp"
                     android:orientation="horizontal">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/add_travels_title"/>
+
                     <EditText
                         android:id="@+id/add_travels_et_route"
                         android:layout_width="match_parent"
@@ -132,20 +147,16 @@
                         android:layout_marginTop="5dp"
                         android:inputType="textMultiLine"
                         android:textSize="13sp"
-                        android:lines="5"
+                        android:lines="2"
                         android:gravity="top"
                         android:hint="路线..."
-                        android:background="@drawable/edit_background"/>
+                        android:background="@null"/>
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:orientation="horizontal">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/add_travels_title"/>
                     <EditText
                         android:id="@+id/add_travels_et_scene"
                         android:layout_width="match_parent"
@@ -153,20 +164,16 @@
                         android:layout_marginTop="5dp"
                         android:inputType="textMultiLine"
                         android:textSize="13sp"
-                        android:lines="5"
+                        android:lines="10"
                         android:gravity="top"
                         android:hint="景点..."
-                        android:background="@drawable/edit_background"/>
+                        android:background="@null"/>
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:orientation="horizontal">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/add_travels_title"/>
                     <EditText
                         android:id="@+id/add_travels_et_ticket"
                         android:layout_width="match_parent"
@@ -177,17 +184,13 @@
                         android:textSize="13sp"
                         android:gravity="top"
                         android:hint="门票..."
-                        android:background="@drawable/edit_background"/>
+                        android:background="@null"/>
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:orientation="horizontal">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/add_travels_title"/>
                     <EditText
                         android:id="@+id/add_travels_et_hotel"
                         android:layout_width="match_parent"
@@ -195,20 +198,16 @@
                         android:layout_marginTop="5dp"
                         android:inputType="textMultiLine"
                         android:textSize="13sp"
-                        android:lines="5"
+                        android:lines="2"
                         android:gravity="top"
                         android:hint="住宿..."
-                        android:background="@drawable/edit_background"/>
+                        android:background="@null"/>
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:orientation="horizontal">
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@mipmap/add_travels_title"/>
                     <EditText
                         android:id="@+id/add_travels_et_tips"
                         android:layout_width="match_parent"
@@ -219,9 +218,10 @@
                         android:lines="5"
                         android:gravity="top"
                         android:hint="小贴士..."
-                        android:background="@drawable/edit_background"/>
+                        android:background="@null"/>
                 </LinearLayout>
             </LinearLayout>
+        </RelativeLayout>
         </LinearLayout>
     </ScrollView>
     <LinearLayout

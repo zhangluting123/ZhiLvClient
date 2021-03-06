@@ -195,9 +195,11 @@
                     android:hint="输入金额"/>
             </RelativeLayout>
             <LinearLayout
+                android:layout_marginTop="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:background="@drawable/edit_background">
                 <EditText
                     android:id="@+id/update_travels_et_title"
                     android:layout_width="match_parent"
@@ -207,7 +209,7 @@
                     android:hint="标题 (不要超过20字)"
                     android:maxLength="20"
                     android:maxLines="1"
-                    android:background="@drawable/edit_background"/>
+                    android:background="@null"/>
                 <EditText
                     android:id="@+id/update_travels_et_route"
                     android:layout_width="match_parent"
@@ -215,10 +217,10 @@
                     android:layout_marginTop="10dp"
                     android:inputType="textMultiLine"
                     android:textSize="13sp"
-                    android:lines="5"
+                    android:lines="2"
                     android:gravity="top"
                     android:hint="路线..."
-                    android:background="@drawable/edit_background"/>
+                    android:background="@null"/>
                 <EditText
                     android:id="@+id/update_travels_et_scene"
                     android:layout_width="match_parent"
@@ -226,10 +228,10 @@
                     android:layout_marginTop="10dp"
                     android:inputType="textMultiLine"
                     android:textSize="13sp"
-                    android:lines="5"
+                    android:lines="8"
                     android:gravity="top"
                     android:hint="景点..."
-                    android:background="@drawable/edit_background"/>
+                    android:background="@null"/>
                 <EditText
                     android:id="@+id/update_travels_et_ticket"
                     android:layout_width="match_parent"
@@ -240,7 +242,7 @@
                     android:textSize="13sp"
                     android:gravity="top"
                     android:hint="门票..."
-                    android:background="@drawable/edit_background"/>
+                    android:background="@null"/>
                 <EditText
                     android:id="@+id/update_travels_et_hotel"
                     android:layout_width="match_parent"
@@ -248,10 +250,10 @@
                     android:layout_marginTop="10dp"
                     android:inputType="textMultiLine"
                     android:textSize="13sp"
-                    android:lines="5"
+                    android:lines="2"
                     android:gravity="top"
                     android:hint="住宿..."
-                    android:background="@drawable/edit_background"/>
+                    android:background="@null"/>
                 <EditText
                     android:id="@+id/update_travels_et_tips"
                     android:layout_width="match_parent"
@@ -262,7 +264,7 @@
                     android:lines="5"
                     android:gravity="top"
                     android:hint="小贴士..."
-                    android:background="@drawable/edit_background"/>
+                    android:background="@null"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
